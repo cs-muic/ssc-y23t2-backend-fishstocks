@@ -54,6 +54,9 @@ public class AuthController {
             return new ResponseEntity<>("Username is already taken!", HttpStatus.BAD_REQUEST);
         }
 
+        System.out.println(signUpDto.getUsername()+ "\n");
+        System.out.println(signUpDto.getName()+ "\n");
+        System.out.println(signUpDto.getPassword()+ "\n");
         // add check for email exists in DB
 
         // create user object
@@ -67,6 +70,8 @@ public class AuthController {
         user.setRoles(Collections.singleton(roles));
 
         userRepository.save(user);
+
+
 
         return new ResponseEntity<>("User registered successfully", HttpStatus.OK);
 
