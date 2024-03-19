@@ -60,7 +60,7 @@ public class WebSecurityConfig {
 //				.logout(l -> l.deleteCookies("JSESSIONID"));; // Configures session management to be stateless.
 		http.csrf(AbstractHttpConfigurer::disable)
 				.authorizeHttpRequests( auth -> {
-					auth.requestMatchers("/","/api/login","api/logout").permitAll();
+					auth.requestMatchers("/","/api/login","/api/logout","/api/whoami").permitAll();
 					auth.requestMatchers(HttpMethod.OPTIONS,"/**").permitAll();
 				});
 		http.exceptionHandling(auth -> auth.authenticationEntryPoint(new JsonFobiddenEntryPoint()));

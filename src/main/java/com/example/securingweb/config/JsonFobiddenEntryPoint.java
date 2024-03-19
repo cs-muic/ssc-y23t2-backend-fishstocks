@@ -18,7 +18,7 @@ public class JsonFobiddenEntryPoint implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         String ajexJson = AjaxUtils.converttoString(
                 SimpleResponseDTO.builder()
-                        .success(true)
+                        .success(false)
                         .message("Forbidden")
                         .build()
         );

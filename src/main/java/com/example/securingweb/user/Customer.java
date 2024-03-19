@@ -14,6 +14,8 @@ import java.util.Set;
 @Builder
 @Data
 @Entity
+@Setter
+@Getter
 @Table(name = "app_user")
 public class Customer implements UserDetails {
     @Id
@@ -26,6 +28,7 @@ public class Customer implements UserDetails {
 
     @Column(nullable = false)
     private String password;
+
 
     public Customer(Long id, String username, String password){
         this.password = password;
