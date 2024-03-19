@@ -76,4 +76,8 @@ public class Board {
         }
         return null;
     }
+    public Square getKingSquare(boolean isWhite) {
+        return kingPositions.get(isWhite);
+    }
+
 }
