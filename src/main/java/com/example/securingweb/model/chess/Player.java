@@ -51,7 +51,6 @@ public class Player implements GameObserver{
         }
     }
 
-
     /**
      * TODO undo function?
      */

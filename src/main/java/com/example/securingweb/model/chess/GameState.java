@@ -22,25 +22,19 @@ public class GameState {
     }
 
 
-    public boolean isCheck() {
-        return check;
-    }
 
     public void setCheck(boolean check) {
         this.check = check;
     }
 
-    public boolean isCheckmate() {
-        return checkmate;
-    }
+    public boolean isCheckmate() {return checkmate;}
+    public boolean isCheck() {return check;}
+    public boolean getStalemate() { return stalemate; }
 
-    public void setCheckmate(boolean checkmate) {
-        this.checkmate = checkmate;
-    }
 
+    public void setCheckmate() { this.checkmate = checkmate; }
 
     public void setStalemate() { this.stalemate = true; }
 
-    public boolean isStalemate() {return stalemate;}
 
 }

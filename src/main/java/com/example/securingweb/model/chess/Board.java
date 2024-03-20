@@ -1,6 +1,7 @@
 package com.example.securingweb.model.chess;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Board {
@@ -56,6 +57,7 @@ public class Board {
 
     /**
      * Checks that the row and col is within the board's bounds
+     * 
      * @param row
      * @param col
      * @return true if within board
@@ -66,6 +68,7 @@ public class Board {
 
     /**
      * Returns the square on that board coordinate
+     * 
      * @param row
      * @param col
      * @return
@@ -76,6 +79,66 @@ public class Board {
         }
         return null;
     }
+
+    // For testing on console
+    public void printBoard() {
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                Square currSquare = board[row][col];
+                Piece currPiece = currSquare.getPiece();
+                char displayChar;
+
+                if (currPiece != null) {
+                    displayChar = currPiece.getSymbol();
+                } else {
+                    // Differentiate color for empty squares more visibly
+                    displayChar = currSquare.getIsWhite() ? '.' : '-'; // Using '.' for white, ':' for black for
+                    // visibility
+                }
+
+                System.out.print(displayChar + " ");
+            }
+            System.out.println(); // New line at the end of each row
+        }
+    }
+
+    /**
+     * Will display the squares that a piece can move to
+     * 
+     * @param selectedSquare
+     */
+    public void displayWithMovableSquares(Square selectedSquare) {
+        Piece selectedPiece = selectedSquare.getPiece();
+        if (selectedPiece == null) {
+            System.out.println("No piece at the selected square.");
+            return;
+        }
+
+        List<Square> movableSquares = selectedPiece.getPossibleMoves(this);
+
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                Square square = getSquare(i, j);
+                if (movableSquares.contains(square)) {
+                    System.out.print("* ");
+                } else if (square.getPiece() == null) {
+                    System.out.print(". ");
+                } else {
+                    System.out.print(square.getPiece().getSymbol() + " ");
+                }
+            }
+            System.out.println();
+        }
+    }
+
+    public Piece movePiece(Square start, Square end) { // returns the piece that was captured (if any)
+        Piece startPiece = start.getPiece();
+        start.setPiece(null);
+        Piece endPiece = end.getPiece();
+        end.setPiece(startPiece);
+        return endPiece;
+    }
+
     public Square getKingSquare(boolean isWhite) {
         return kingPositions.get(isWhite);
     }
