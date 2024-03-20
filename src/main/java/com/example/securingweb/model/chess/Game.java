@@ -16,10 +16,10 @@ public class Game implements GameSubject {
 
     public Game() {
         board = new Board();
-        gameState = new GameState();
-        playerWhite = new Player(true);
-        playerBlack = new Player(false);
+        playerWhite = new Player(true, board);
+        playerBlack = new Player(false, board);
         currentPlayer = playerWhite;
+        gameState = new GameState();
 
     }
 
@@ -82,7 +82,8 @@ public class Game implements GameSubject {
             if (!hasLegalMoves()) {
                 gameState.setCheckmate();
             }
-        } else {
+        }
+        else {
             gameState.setCheck(false);
             if (!hasLegalMoves()) {
                 gameState.setStalemate();
@@ -116,8 +117,6 @@ public class Game implements GameSubject {
         };
 
         for (int[] dir : directions) {
-            // Important: Use the result of scanForThreat to determine if the king is in
-            // check.
             if (scanForThreat(kingLocation.getRow(), kingLocation.getCol(), dir[0], dir[1], kingIsWhite)) {
                 return true; // Threat found, king is in check
             }
@@ -145,27 +144,6 @@ public class Game implements GameSubject {
         }
         return false; // No threats found in this direction
     }
-
-    // Check for knight threats specifically
-    private boolean scanForKnightThreats(int kingRow, int kingCol, boolean kingIsWhite) {
-        int[][] knightMoves = {
-                { -2, -1 }, { -2, 1 }, { -1, -2 }, { -1, 2 },
-                { 1, -2 }, { 1, 2 }, { 2, -1 }, { 2, 1 }
-        };
-
-        for (int[] move : knightMoves) {
-            int newRow = kingRow + move[0];
-            int newCol = kingCol + move[1];
-            if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
-                Piece piece = board.getSquare(newRow, newCol).getPiece();
-                if (piece != null && piece.isWhite() != kingIsWhite && piece.getType() == PieceType.KNIGHT) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     // Determine if a piece can attack the king based on direction and piece type
     private boolean isThreateningPiece(Piece piece, int rowInc, int colInc, boolean kingIsWhite) {
         // Simplify threat logic based on piece type and direction
@@ -189,6 +167,27 @@ public class Game implements GameSubject {
         return false;
     }
 
+    // Check for knight threats specifically
+    private boolean scanForKnightThreats(int kingRow, int kingCol, boolean kingIsWhite) {
+        int[][] knightMoves = {
+                { -2, -1 }, { -2, 1 }, { -1, -2 }, { -1, 2 },
+                { 1, -2 }, { 1, 2 }, { 2, -1 }, { 2, 1 }
+        };
+
+        for (int[] move : knightMoves) {
+            int newRow = kingRow + move[0];
+            int newCol = kingCol + move[1];
+            if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
+                Piece piece = board.getSquare(newRow, newCol).getPiece();
+                if (piece != null && piece.isWhite() != kingIsWhite && piece.getType() == PieceType.KNIGHT) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+
     /**
      * Play loop for console
      * 
@@ -196,7 +195,9 @@ public class Game implements GameSubject {
     public void play() {
         Scanner scanner = new Scanner(System.in);
 
-        while (true) {
+        while (!gameState.isCheckmate() && !gameState.isStalemate()) {
+
+
             // Display the board
             board.printBoard();
 
@@ -225,10 +226,14 @@ public class Game implements GameSubject {
                 System.out.println("Invalid move. Please try again.");
                 continue;
             }
-            updateGameState();
-
             // Switch players
             switchPlayers();
+            updateGameState();
+            System.out.println(scanCheck(board.getKingSquare(currentPlayer.isWhite()), currentPlayer.isWhite()));
+
+            System.out.println(gameState.isCheck());
+            System.out.println(gameState.isCheckmate());
+            System.out.println(gameState.isStalemate());
         }
     }
 
@@ -244,9 +249,11 @@ public class Game implements GameSubject {
         // no legal moves for current player
         for (Square square : currentPlayer.getSquares()) {
             List<Square> possibleMoves = square.getPiece().getPossibleMoves(board);
-            for (Square possibleMove : possibleMoves) {
-                if (canMoveWithoutCheck(square, possibleMove)) {
-                    return true;
+            if (possibleMoves != null){
+                for (Square possibleMove : possibleMoves) {
+                    if (canMoveWithoutCheck(square, possibleMove)) {
+                        return true;
+                    }
                 }
             }
         }

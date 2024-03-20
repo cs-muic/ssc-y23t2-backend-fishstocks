@@ -14,9 +14,7 @@ public class GameState {
         this.stalemate = false;
     }
 
-    public boolean isWhiteTurn() {
-        return whiteTurn;
-    }
+    public boolean isWhiteTurn() {return whiteTurn;}
     public void setWhiteTurn(boolean white) {
         whiteTurn = white;
     }
@@ -29,10 +27,10 @@ public class GameState {
 
     public boolean isCheckmate() {return checkmate;}
     public boolean isCheck() {return check;}
-    public boolean getStalemate() { return stalemate; }
+    public boolean isStalemate() { return stalemate; }
 
 
-    public void setCheckmate() { this.checkmate = checkmate; }
+    public void setCheckmate() { this.checkmate = true; }
 
     public void setStalemate() { this.stalemate = true; }
 

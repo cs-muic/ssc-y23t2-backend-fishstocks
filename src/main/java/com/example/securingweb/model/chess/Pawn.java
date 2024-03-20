@@ -18,9 +18,7 @@ public class Pawn extends Piece {
         int startRow = this.isWhite() ? 6 : 1;
 
         // Single square forward
-        System.out.println("Row: "+square.getRow() +"Dir: "+direction);
         int newRow = square.getRow() + direction;
-        System.out.println(newRow);
         if (board.isPositionValid(newRow, square.getCol()) && !board.getSquare(newRow, square.getCol()).isOccupied()) {
             moves.add(board.getSquare(newRow, square.getCol()));
 

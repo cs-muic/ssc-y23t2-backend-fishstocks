@@ -9,11 +9,29 @@ public class Player implements GameObserver{
     private List<Piece> capturedPieces; // Pieces this player has currently captured
     private List<Square> occupiedSquares;
 
-    public Player(boolean isWhite) {
+    public Player(boolean isWhite, Board board) {
         this.isWhite = isWhite;
         this.moveHistory = new StringBuilder();
         this.capturedPieces = new ArrayList<>();
         this.occupiedSquares = new ArrayList<>();
+        setupOccupiedSquares(isWhite, board);
+
+    }
+
+    private void setupOccupiedSquares(Boolean isWhite, Board board) {
+        int start,end;
+        if (isWhite){
+            start = 6;
+            end = 7;
+        }else{
+            start = 0;
+            end = 1;
+        }
+        for(int row = start; row <= end; row++){
+            for(int col = 0; col < 8; col ++){
+            occupiedSquares.add(board.getSquare(row,col));
+            }
+        }
     }
 
     public void addMove(String move) {
