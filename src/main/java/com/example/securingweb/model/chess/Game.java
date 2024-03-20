@@ -13,6 +13,7 @@ public class Game implements GameSubject {
     private GameState gameState;
     public Board board;
     private Player playerWhite, playerBlack, currentPlayer;
+    private GameHistory gameHistory;
 
     public Game() {
         board = new Board();
@@ -20,6 +21,7 @@ public class Game implements GameSubject {
         playerBlack = new Player(false, board);
         currentPlayer = playerWhite;
         gameState = new GameState();
+        gameHistory = new GameHistory();
 
     }
 
@@ -51,9 +53,9 @@ public class Game implements GameSubject {
             return false;
         } else {
             // Can legally make the move
+            gameHistory.updateMoveHistory(start, end, currentPlayer);
             Piece targetPiece = board.movePiece(start, end); // returns us a captured piece if any
             handleCapturedPiece(targetPiece);
-            updateMoveHistory(start, end);
         }
         currentPlayer.updateSquares(start, end);
 
@@ -64,10 +66,6 @@ public class Game implements GameSubject {
         if (targetPiece != null) {
             currentPlayer.addCaptured(targetPiece);
         }
-    }
-
-    private void updateMoveHistory(Square start, Square end) {
-        currentPlayer.addMove(start + " " + end);
     }
 
     private void switchPlayers() {
@@ -89,6 +87,7 @@ public class Game implements GameSubject {
                 gameState.setStalemate();
             }
         }
+        notifyObservers();
     }
 
     @Override
@@ -235,6 +234,8 @@ public class Game implements GameSubject {
             System.out.println(gameState.isCheckmate());
             System.out.println(gameState.isStalemate());
         }
+        System.out.println(gameHistory.getGameHistory());
+
     }
 
     /**
@@ -268,5 +269,6 @@ public class Game implements GameSubject {
         end.setPiece(originalPiece); // Put back the original piece
         return !inCheck;
     }
+
 
 }
