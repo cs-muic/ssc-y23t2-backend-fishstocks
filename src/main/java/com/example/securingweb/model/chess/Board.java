@@ -136,6 +136,8 @@ public class Board {
         start.setPiece(null);
         Piece endPiece = end.getPiece();
         end.setPiece(startPiece);
+        startPiece.updateSquare(end);
+
         return endPiece;
     }
 

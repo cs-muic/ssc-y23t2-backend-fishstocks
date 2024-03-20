@@ -32,4 +32,7 @@ public abstract class Piece {
         List<Square> possibleMoves = getPossibleMoves(board);
         return possibleMoves.contains(targetSquare);
     }
+    public void updateSquare(Square square){
+        this.square = square;
+    }
 }

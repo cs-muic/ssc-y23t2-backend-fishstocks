@@ -4,10 +4,10 @@ public class Main {
 
     public static void main(String[] args) {
         Game game = new Game();
-//        game.play();
+        game.play();
 //
-        game.makeMove(game.board.getSquare(6,3), game.board.getSquare(4,3));
-        System.out.println(game.board.getSquare(4,3).getPiece().getPossibleMoves(game.board));
+//        game.makeMove(game.board.getSquare(6,3), game.board.getSquare(4,3));
+//        System.out.println(game.board.getSquare(4,3).getPiece().getPossibleMoves(game.board));
 
 //        game.board.displayWithMovableSquares(game.board.getSquare(0,0));
 //        game.board.movePiece(game.board.getSquare(0,6), game.board.getSquare(3,3));
