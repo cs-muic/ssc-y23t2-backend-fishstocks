@@ -58,6 +58,27 @@ public class Player implements GameObserver{
     }
 
     /**
-     * TODO undo function?
+     * Scans if player still has any legal moves
+     * Stalemate - king has no moves but isn't in check.
+     * Checkmate - king has no moves and is in check
+     *
+     * @return boolean
      */
+    public boolean hasLegalMoves(Board board, ChessRules rules) {
+        for (Square square : this.occupiedSquares) {
+            Piece piece = square.getPiece();
+            if (piece == null || piece.isWhite() != this.isWhite) continue;
+
+            List<Square> possibleMoves = piece.getPossibleMoves(board);
+            if(possibleMoves != null) {
+                for (Square target : possibleMoves) {
+                    Move tentativeMove = new Move(square, target, piece, target.getPiece(), false, false); // Example; adjust as needed
+                    if (rules.isMoveLegal(tentativeMove, this)) {
+                        return true; // Found a legal move
+                    }
+                }
+            }
+        }
+        return false;
+    }
 }

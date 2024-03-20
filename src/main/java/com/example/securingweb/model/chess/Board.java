@@ -107,7 +107,7 @@ public class Board {
      * 
      * @param selectedSquare
      */
-    public void displayWithMovableSquares(Square selectedSquare) {
+    public void displayMovableSquares(Square selectedSquare) {
         Piece selectedPiece = selectedSquare.getPiece();
         if (selectedPiece == null) {
             System.out.println("No piece at the selected square.");
@@ -131,18 +131,18 @@ public class Board {
         }
     }
 
-    public Piece movePiece(Square start, Square end) { // returns the piece that was captured (if any)
-        Piece startPiece = start.getPiece();
+    public void movePiece(Square start, Square end) { // returns the piece that was captured (if any)
+        end.setPiece(start.getPiece());
         start.setPiece(null);
-        Piece endPiece = end.getPiece();
-        end.setPiece(startPiece);
-        startPiece.updateSquare(end);
-
-        return endPiece;
+        end.getPiece().updateSquare(end);
     }
 
     public Square getKingSquare(boolean isWhite) {
         return kingPositions.get(isWhite);
+    }
+    public void undoMove(Square start, Square end, Piece movedPiece, Piece capturedPiece) {
+        start.setPiece(movedPiece);
+        end.setPiece(capturedPiece);
     }
 
 }

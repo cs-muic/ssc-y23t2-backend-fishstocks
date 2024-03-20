@@ -33,23 +33,9 @@ public class GameHistory {
         moveNumber++;
     }
 
-    public void updateMoveHistory(Square start, Square end, Player currentPlayer) {
-        char symbol = start.getPiece().getSymbol();
-        String hist = end.getSquareName();
-        if (currentPlayer.isWhite()) {
-            gameHistory.append(moveNumber).append(".");
-            incrementMoveNumber();
-        }
 
-        if (symbol == 'p' || symbol == 'P') {
-            getPlayerHistory(currentPlayer).append(hist);
-            gameHistory.append(hist);
-        } else {
-            getPlayerHistory(currentPlayer).append(symbol + hist);
-            gameHistory.append(symbol + hist);
-        }
-        getPlayerHistory(currentPlayer).append(" ");
-        gameHistory.append(" ");
+    public void recordMove(Move move) {
+        gameHistory.append(move.getNotation());
     }
 
 }
