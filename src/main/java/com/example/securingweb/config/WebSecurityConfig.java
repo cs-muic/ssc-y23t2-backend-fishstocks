@@ -2,10 +2,7 @@ package com.example.securingweb.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-<<<<<<< HEAD
 import org.springframework.http.HttpMethod;
-=======
->>>>>>> bb6e2f0 (setup basic authentication and recording admin account into database, but not done)
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -22,10 +19,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-<<<<<<< HEAD
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
-=======
->>>>>>> bb6e2f0 (setup basic authentication and recording admin account into database, but not done)
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -52,7 +46,6 @@ public class WebSecurityConfig {
 //			)
 //			.logout((logout) -> logout.permitAll());
 
-<<<<<<< HEAD
 
 		//new one
 //		http
@@ -72,16 +65,6 @@ public class WebSecurityConfig {
 				});
 		http.exceptionHandling(auth -> auth.authenticationEntryPoint(new JsonFobiddenEntryPoint()));
 		http.authorizeHttpRequests( auth -> auth.requestMatchers("/**").permitAll());
-=======
-		http
-				.csrf(AbstractHttpConfigurer::disable) // Disables CSRF protection, common in stateless REST APIs.
-				.authorizeHttpRequests(authorize -> authorize
-						.requestMatchers(new AntPathRequestMatcher("/user", "POST")).permitAll() // Allow POST requests to /user without authentication
-						.anyRequest().authenticated() // Ensures all requests are authenticated.
-				)
-				.httpBasic(withDefaults()) // Enables HTTP Basic Authentication with default settings.
-				.logout(l -> l.deleteCookies("JSESSIONID"));; // Configures session management to be stateless.
->>>>>>> bb6e2f0 (setup basic authentication and recording admin account into database, but not done)
 		return http.build(); // Builds and returns the SecurityFilterChain.
 
 	}

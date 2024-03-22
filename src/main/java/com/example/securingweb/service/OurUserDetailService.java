@@ -20,7 +20,6 @@ public class OurUserDetailService implements UserDetailsService {
     private UserRepository userRepository;
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-<<<<<<< HEAD
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Invalid user"));
 //        if (!username.equals("admin")){
@@ -30,16 +29,5 @@ public class OurUserDetailService implements UserDetailsService {
 //            userRepository.save(u);
 //            return u;
 //        }
-=======
-//        return userRepository.findByUsername(username)
-//                .orElseThrow(() -> new RuntimeException("Invalid user"));
-        if (!username.equals("admin")){
-            throw new RuntimeException("invalid");
-        }else{
-            Customer u = new Customer(1L,"admin",encoder.encode("admin"));
-            userRepository.save(u);
-            return u;
-        }
->>>>>>> bb6e2f0 (setup basic authentication and recording admin account into database, but not done)
     }
 }

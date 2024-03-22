@@ -14,11 +14,8 @@ import java.util.Set;
 @Builder
 @Data
 @Entity
-<<<<<<< HEAD
 @Setter
 @Getter
-=======
->>>>>>> bb6e2f0 (setup basic authentication and recording admin account into database, but not done)
 @Table(name = "app_user")
 public class Customer implements UserDetails {
     @Id
@@ -32,10 +29,7 @@ public class Customer implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-<<<<<<< HEAD
 
-=======
->>>>>>> bb6e2f0 (setup basic authentication and recording admin account into database, but not done)
     public Customer(Long id, String username, String password){
         this.password = password;
         this.id = id;
