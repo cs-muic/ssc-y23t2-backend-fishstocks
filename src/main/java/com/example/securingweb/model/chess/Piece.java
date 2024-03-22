@@ -1,4 +1,5 @@
 package com.example.securingweb.model.chess;
+
 import java.util.List;
 
 public abstract class Piece {
@@ -18,7 +19,7 @@ public abstract class Piece {
         this.symbol = symbol;
     }
 
-    public abstract List<Square> getPossibleMoves(Board board);
+    public abstract List<Move> getUnfilteredMoves(Board board);
 
     public boolean isWhite() {
         return isWhite;
@@ -28,11 +29,7 @@ public abstract class Piece {
         return this.type;
     }
 
-    public boolean canMoveTo(Square targetSquare, Board board) {
-        List<Square> possibleMoves = getPossibleMoves(board);
-        return possibleMoves.contains(targetSquare);
-    }
-    public void updateSquare(Square square){
+    public void updateSquare(Square square) {
         this.square = square;
     }
 }

@@ -12,7 +12,7 @@ public class Game implements GameSubject {
     private List<GameObserver> observers = new ArrayList<>();
     private GameState gameState;
     public Board board;
-    private Player playerWhite, playerBlack, currentPlayer;
+    private Player playerWhite, playerBlack;
     private GameHistory gameHistory;
     private ChessRules rules;
 
@@ -20,83 +20,103 @@ public class Game implements GameSubject {
         board = new Board();
         playerWhite = new Player(true, board);
         playerBlack = new Player(false, board);
-        currentPlayer = playerWhite;
-        gameState = new GameState();
+        gameState = new GameState(playerWhite);
         gameHistory = new GameHistory();
         rules = new ChessRules(board);
 
     }
 
-    // Moves a piece from one position to another, if the move is valid.
-    // NOTE: This will need to be mouse click later
     public boolean makeMove(Square start, Square end) {
         Piece startPiece = start.getPiece();
-        // || startPiece.isWhite() != currentPlayer.isWhite() ||
-        if (startPiece == null || !startPiece.canMoveTo(end, board)) {
+        System.out.println(startPiece);
+        if (startPiece == null || !startPiece.isWhite() == gameState.getCurrentPlayer().isWhite()) {
             System.out.println("Invalid move.");
             return false;
         }
-        Piece capturedPiece = end.getPiece(); // This might be null if no piece is captured
-        Move move = new Move(start, end, startPiece, capturedPiece, false, false);
-        if (!rules.isMoveLegal(move, currentPlayer)) {
-            System.out.println("This move would put your king in check.");
+
+        List<Move> possibleMoves = rules.getPossibleMoves(startPiece, board);
+        Move chosenMove = possibleMoves.stream()
+                .filter(move -> move.getEnd().equals(end))
+                .findFirst()
+                .orElse(null);
+
+        if (chosenMove == null || !rules.isMoveLegal(chosenMove, gameState.getCurrentPlayer())) {
+            System.out.println("This move is not legal.");
             return false;
         }
-        // Execute move
-        board.movePiece(start, end);
-        currentPlayer.updateSquares(start, end); // Make sure this method now properly handles the move
-        gameHistory.recordMove(move); // Assuming GameHistory now has a method to record moves
+
+        executeMove(chosenMove);
+        gameState.getCurrentPlayer().updateSquares(start, end);
+        gameHistory.recordMove(chosenMove);
+
+
+        switchPlayers();
+        updateGameState();
         return true;
+    }
+
+    /**
+     * TODO: implement these if else
+     * 
+     * @param move
+     */
+    private void executeMove(Move move) {
+        // Handle special moves -> castling, en passant, and promotion
+        if (move.isCastlingKingSide()) {
+            // Update both the king and rook positions
+        } else if (move.isCastlingQueenSide()) {
+
+        } else if (move.isEnPassantCapture()) {
+            // Handle en passant capture
+        } else if (move.getPromotionType() != null) {
+            // Handle pawn promotion
+        } else {
+            // Standard move
+
+            board.movePiece(move.getStart(), move.getEnd());
+        }
+        handleCapturedPiece(move.getCapturedPiece());
     }
 
     private void handleCapturedPiece(Piece targetPiece) {
         if (targetPiece != null) {
-            currentPlayer.addCaptured(targetPiece);
+            gameState.getCurrentPlayer().addCaptured(targetPiece);
         }
     }
 
     private void switchPlayers() {
-        currentPlayer = (currentPlayer == playerWhite) ? playerBlack : playerWhite;
-        gameState.setWhiteTurn(currentPlayer.isWhite());
-        notifyObservers();
+        gameState.setCurrentPlayer((gameState.getCurrentPlayer() == playerWhite) ? playerBlack : playerWhite);
     }
 
     private void updateGameState() {
-        if (rules.scanCheck(board.getKingSquare(currentPlayer.isWhite()), currentPlayer.isWhite())) {
+        if (rules.scanCheck(board.getKingSquare(gameState.getCurrentPlayer().isWhite()),
+                gameState.getCurrentPlayer().isWhite())) {
             gameState.setCheck(true);
-            if (!currentPlayer.hasLegalMoves(board, rules)) {
+            if (!gameState.getCurrentPlayer().hasLegalMoves(board, rules)) {
                 gameState.setCheckmate();
             }
-        }
-        else {
+        } else {
             gameState.setCheck(false);
-            if (!currentPlayer.hasLegalMoves(board, rules)) {
+            if (!gameState.getCurrentPlayer().hasLegalMoves(board, rules)) {
                 gameState.setStalemate();
             }
         }
-        notifyObservers();
+        notifyObservers(new GameStateChangeEvent(gameState));
     }
 
     @Override
     public void addObserver(GameObserver observer) {
         observers.add(observer);
-
     }
 
     @Override
     public void removeObserver(GameObserver observer) {
         observers.remove(observer);
-
     }
 
     @Override
-    public void notifyObservers() {
-        for (GameObserver observer : observers) {
-            observer.update(gameState);
-        }
+    public void notifyObservers(GameEvent event) {
     }
-
-
 
     /**
      * Play loop for console
@@ -109,9 +129,10 @@ public class Game implements GameSubject {
 
             // Display the board
             board.printBoard();
+            updateGameState();
 
             // Ask the player to select a square
-            System.out.println((currentPlayer.isWhite() ? "White's" : "Black's") + " move: ");
+            System.out.println((gameState.getCurrentPlayer().isWhite() ? "White's" : "Black's") + " move: ");
             System.out.println("Select a square: ");
             String squareInput = scanner.nextLine();
             String[] squareParts = squareInput.split(",");
@@ -119,13 +140,13 @@ public class Game implements GameSubject {
             int squareCol = Integer.parseInt(squareParts[1]);
             Square selectedSquare = board.getSquare(squareRow, squareCol);
 
-            if(selectedSquare.getPiece().isWhite() != currentPlayer.isWhite()){
+            if (selectedSquare.getPiece().isWhite() != gameState.getCurrentPlayer().isWhite()) {
                 System.out.println("You can only move your own pieces.");
                 continue;
             }
 
             // Display the possible moves for the selected piece
-            board.displayMovableSquares(selectedSquare);
+            board.displayMovableSquares(rules, selectedSquare);
 
             // Ask the player to select a move
             System.out.println("Select a move: ");
@@ -138,28 +159,11 @@ public class Game implements GameSubject {
             // Make the move
             if (!makeMove(selectedSquare, targetSquare)) {
                 System.out.println("Invalid move. Please try again.");
-                continue;
             }
-            // Switch players
-            switchPlayers();
-            updateGameState();
 
-//            System.out.println(gameState.isCheck());
-//            System.out.println(gameState.isCheckmate());
-//            System.out.println(gameState.isStalemate());
         }
         System.out.println(gameHistory.getGameHistory());
 
     }
-
-    private boolean canMoveWithoutCheck(Square start, Square end) {
-        Piece originalPiece = end.getPiece();
-        board.movePiece(start, end);
-        boolean inCheck = rules.scanCheck(board.getKingSquare(currentPlayer.isWhite()), currentPlayer.isWhite());
-        board.movePiece(end, start); // Revert the move
-        end.setPiece(originalPiece); // Put back the original piece
-        return !inCheck;
-    }
-
 
 }

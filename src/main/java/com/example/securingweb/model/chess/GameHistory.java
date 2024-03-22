@@ -33,7 +33,6 @@ public class GameHistory {
         moveNumber++;
     }
 
-
     public void recordMove(Move move) {
         gameHistory.append(move.getNotation());
     }

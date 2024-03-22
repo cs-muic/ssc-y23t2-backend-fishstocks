@@ -1,5 +1,6 @@
 package com.example.securingweb.model.chess;
 
 public interface GameObserver {
-    void update(GameState state);
+    void update(GameEvent event);
 }
+

@@ -107,19 +107,19 @@ public class Board {
      * 
      * @param selectedSquare
      */
-    public void displayMovableSquares(Square selectedSquare) {
+    public void displayMovableSquares(ChessRules rules, Square selectedSquare) {
         Piece selectedPiece = selectedSquare.getPiece();
         if (selectedPiece == null) {
             System.out.println("No piece at the selected square.");
             return;
         }
 
-        List<Square> movableSquares = selectedPiece.getPossibleMoves(this);
-
+        List<Move> possibleMoves = rules.getPossibleMoves(selectedPiece, this);
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 Square square = getSquare(i, j);
-                if (movableSquares.contains(square)) {
+                boolean isMoveTarget = possibleMoves.stream().anyMatch(move -> move.getEnd().equals(square));
+                if (isMoveTarget) {
                     System.out.print("* ");
                 } else if (square.getPiece() == null) {
                     System.out.print(". ");
@@ -131,18 +131,43 @@ public class Board {
         }
     }
 
-    public void movePiece(Square start, Square end) { // returns the piece that was captured (if any)
-        end.setPiece(start.getPiece());
-        start.setPiece(null);
-        end.getPiece().updateSquare(end);
+    public void movePiece(Square start, Square end) {
+        Piece piece = start.getPiece();
+        if (piece != null) {
+            // If the piece being moved is a king, update its position in the kingPositions map
+            if (piece.getType() == PieceType.KING) {
+                kingPositions.put(piece.isWhite(), end);
+            }
+            piece.updateSquare(end);
+            end.setPiece(piece);
+            start.setPiece(null);
+        } else {
+            throw new IllegalStateException("No piece at the start square");
+        }
     }
+    // public void movePiece(Square start, Square end) {
+    // if (start.getPiece().getType() == PieceType.KING) { // If it's a king piece,
+    // update the hashmap
+    // kingPositions.put(start.getPiece().isWhite, end);
+    // }
+    // end.setPiece(start.getPiece());
+    // start.setPiece(null);
+    // end.getPiece().updateSquare(end);
+    // }
 
     public Square getKingSquare(boolean isWhite) {
         return kingPositions.get(isWhite);
     }
+
     public void undoMove(Square start, Square end, Piece movedPiece, Piece capturedPiece) {
+        if (movedPiece.getType() == PieceType.KING) { // If it's a king piece, update the hashmap
+            kingPositions.put(movedPiece.isWhite(), start);
+        }
+        movedPiece.updateSquare(start);
+        if (capturedPiece != null) {
+            capturedPiece.updateSquare(end);
+        }
         start.setPiece(movedPiece);
         end.setPiece(capturedPiece);
     }
-
 }
