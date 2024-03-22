@@ -10,6 +10,7 @@ create table User
     ID       int auto_increment,
     Username varchar(255)     not null,
     Ratings  int default 1000 not null,
+    Password varchar(255) not null
     constraint User_pk_3
         primary key (ID),
     constraint User_pk
