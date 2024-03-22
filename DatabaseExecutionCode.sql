@@ -2,7 +2,7 @@
 --like
 CREATE DATABASE Chess;
 
-GRANT ALL PRIVILEGES ON Chess.* TO 'ssc'@'%';
+GRANT ALL PRIVILEGES ON Chess.* TO 'root'@'%';
 FLUSH PRIVILEGES;
 
 create table User
@@ -10,7 +10,7 @@ create table User
     ID       int auto_increment,
     Username varchar(255)     not null,
     Ratings  int default 1000 not null,
-    Password varchar(255) not null
+    Password varchar(255) not null,
     constraint User_pk_3
         primary key (ID),
     constraint User_pk
@@ -34,6 +34,7 @@ create table Moves
 (
     MoveID int auto_increment,
     GameID int not null,
+    GameMove varchar(10) not null,
     constraint Moves_pk
         primary key (MoveID),
     constraint Moves_pk_2
