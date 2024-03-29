@@ -42,4 +42,8 @@ public class Rook extends Piece {
     public boolean hasMoved() {
         return hasMoved;
     }
+
+    public void setHasMoved(boolean hasMoved) {
+        this.hasMoved = hasMoved;
+    }
 }

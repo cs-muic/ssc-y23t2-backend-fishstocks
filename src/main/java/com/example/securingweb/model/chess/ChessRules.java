@@ -87,36 +87,37 @@ public class ChessRules {
     }
 
     public boolean isMoveLegal(Move move, Player currentPlayer) {
-        if (move.isCastlingKingSide()) {
-            return canCastle(board, true, currentPlayer);
+        // These special types have already been checked
+        if (move.isCastlingQueenSide()
+                || move.isCastlingKingSide()
+                || move.isEnPassantCapture()
+                || move.getPromotionType() != null){
+            return true;
         }
-        if (move.isCastlingQueenSide()) {
-            return canCastle(board, false, currentPlayer);
-        }
+
         // Try to make the move on the board
-        Piece capturedPiece = move.getCapturedPiece();
         board.movePiece(move.getStart(), move.getEnd());
 
         // Check if it puts your own king in check
         boolean inCheckAfterMove = scanCheck(board.getKingSquare(currentPlayer.isWhite()), currentPlayer.isWhite());
-        board.undoMove(move.getStart(), move.getEnd(), move.getMovedPiece(), capturedPiece);
+        board.undoMove(move);
 
         // The move is legal if it doesn't leave the king in check
         return !inCheckAfterMove;
     }
 
-    private boolean canCastle(Board board, boolean kingSide, Player currentPlayer) {
+    private boolean canCastle(Board board, boolean kingSide, Piece king) {
         // Check if the squares between the king and the rook are empty
         int start = kingSide ? 5 : 1;
         int end = kingSide ? 6 : 3;
         for (int i = start; i <= end; i++) {
-            if (board.getSquare(currentPlayer.isWhite() ? 7 : 0, i).isOccupied()) {
+            if (board.getSquare(king.isWhite() ? 7 : 0, i).isOccupied()) {
                 return false;
             }
         }
 
         // Check if the rook has moved
-        Piece piece = board.getSquare(currentPlayer.isWhite() ? 7 : 0, kingSide ? 7 : 0).getPiece();
+        Piece piece = board.getSquare(king.isWhite() ? 7 : 0, kingSide ? 7 : 0).getPiece();
         if (piece == null || !(piece instanceof Rook) || ((Rook) piece).hasMoved()) {
             return false;
         }
@@ -124,25 +125,54 @@ public class ChessRules {
         return true;
     }
 
+//    private boolean canEnPassant(){
+//
+//    }
+
+//    private boolean canPromote(Piece piece, Board board){
+//        if(){
+//
+//        }
+//
+//    }
+
+
+    /**
+     * This gets the raw moves from the piece class and filters out ones that don't abide to our chess rules
+     * It also checks for the availability of special moves
+     * @param piece
+     * @param board
+     * @return Returns list of legal moves
+     */
     public List<Move> getPossibleMoves(Piece piece, Board board) {
         List<Move> possibleMoves = piece.getUnfilteredMoves(board);
         List<Move> legalMoves = new ArrayList<>();
 
+        // If King piece, check for castling
+        if (piece instanceof King){
+            if(canCastle(board, true, piece)){
+                legalMoves.add(new Move(board.getKingSquare(piece.isWhite()), board.getSquare(piece.isWhite() ? 7 : 0, 6), piece, null, false, true, false,
+                        null));
+            }
+            if(canCastle(board, false, piece)){
+                legalMoves.add(new Move(board.getKingSquare(piece.isWhite()), board.getSquare(piece.isWhite() ? 7 : 0, 2), piece, null, false, false, true,
+                        null));
+            }
+        }
+
         for (Move move : possibleMoves) {
             // Try to make the move on the board
-            Piece capturedPiece = move.getCapturedPiece();
             board.movePiece(move.getStart(), move.getEnd());
 
             // Check if it puts your own king in check
             boolean inCheckAfterMove = scanCheck(board.getKingSquare(piece.isWhite()), piece.isWhite());
-            board.undoMove(move.getStart(), move.getEnd(), move.getMovedPiece(), capturedPiece);
+            board.undoMove(move);
 
             // The move is legal if it doesn't leave the king in check
             if (!inCheckAfterMove) {
                 legalMoves.add(move);
             }
         }
-
         return legalMoves;
     }
 

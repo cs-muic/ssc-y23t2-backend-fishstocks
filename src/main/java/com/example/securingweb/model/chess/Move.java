@@ -1,5 +1,6 @@
 package com.example.securingweb.model.chess;
 
+
 public class Move {
     // Handles movement, en passant, castling, promotions
     private final Square start;
@@ -70,8 +71,7 @@ public class Move {
         return isCastlingQueenSide;
     }
 
-    public PieceType getPromotionType() {
-        return promotionType;
-    }
+    public PieceType getPromotionType() {return promotionType;}
+
 
 }
