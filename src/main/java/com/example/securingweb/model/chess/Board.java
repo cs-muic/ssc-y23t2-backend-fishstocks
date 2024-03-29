@@ -148,7 +148,7 @@ public class Board {
         if (piece != null) {
             Piece capturedPiece = end.getPiece();
             if (capturedPiece != null) {
-                updateMap(false, capturedPiece); // Remove the captured piece from the map
+//                updateMap(false, capturedPiece); // Remove the captured piece from the map
             }
             piece.updateSquare(end);
             end.setPiece(piece);

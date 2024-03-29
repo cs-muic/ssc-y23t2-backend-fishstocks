@@ -36,10 +36,16 @@ public class ChessRules {
             if (piece != null) {
                 if (piece.isWhite() != kingIsWhite) { // Encounter an enemy piece
                     // Check if the piece is a threat
-                    return isThreateningPiece(piece, rowInc, colInc, kingIsWhite);
-                } else {
-                    return false; // Blocked by own piece, no threat from this direction
+                    if (isThreateningPiece(piece, rowInc, colInc, kingIsWhite)) {
+                        return true;
+                    }
                 }
+                // Stop scanning if a pawn is encountered, regardless of color
+                if (piece.getType() == PieceType.PAWN) {
+                    return false;
+                }
+                // Blocked by own piece, no threat from this direction
+                return false;
             }
             currentRow += rowInc;
             currentCol += colInc;
@@ -60,9 +66,11 @@ public class ChessRules {
         }
 
         // Add special case for pawns
-        if (type == PieceType.PAWN && diagonal && Math.abs(rowInc) == 1 &&
-                ((kingIsWhite && rowInc < 0) || (!kingIsWhite && rowInc > 0))) {
-            return true; // Pawn can attack diagonally
+        if (type == PieceType.PAWN && diagonal && Math.abs(rowInc) == 1 && Math.abs(colInc) == 1) {
+            // White pawn attacking down
+            if (kingIsWhite && rowInc == 1) { // Black pawn attacking up
+                return true;
+            } else return !kingIsWhite && rowInc == -1;
         }
 
         return false;
