@@ -9,6 +9,8 @@ import java.util.Scanner;
 // Interact with users input + check for valid moves and observers
 
 public class Game implements GameSubject {
+
+    private int GameID;
     private List<GameObserver> observers = new ArrayList<>();
     private GameState gameState;
     public Board board;
@@ -116,6 +118,10 @@ public class Game implements GameSubject {
 
     @Override
     public void notifyObservers(GameEvent event) {
+        // Send the information to the other player
+        for (GameObserver gameObserver: observers){
+            gameObserver.update(event);
+        }
     }
 
     /**
