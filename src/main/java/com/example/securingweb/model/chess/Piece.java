@@ -29,6 +29,10 @@ public abstract class Piece {
         return this.type;
     }
 
+    public Square getLocation(){
+        return this.square;
+    }
+
     public void updateSquare(Square square) {
         this.square = square;
     }

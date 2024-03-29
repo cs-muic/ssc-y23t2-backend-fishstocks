@@ -33,16 +33,6 @@ public class King extends Piece {
             }
         }
 
-        // Castling moves
-        if (this.canCastleKS) {
-            moves.add(new Move(this.square, board.getSquare(this.isWhite() ? 7 : 0, 6), this, null, false, true, false,
-                    null));
-        }
-        if (this.canCastleQS) {
-            moves.add(new Move(this.square, board.getSquare(this.isWhite() ? 7 : 0, 2), this, null, false, false, true,
-                    null));
-        }
-
         return moves;
     }
 

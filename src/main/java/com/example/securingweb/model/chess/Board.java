@@ -1,18 +1,21 @@
 package com.example.securingweb.model.chess;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Board {
     private final Square[][] board;
-    private final Map<Boolean, Square> kingPositions = new HashMap<>();
+    private final Map<PieceType, List<Piece>> pieceMap; // Hashmap for easy access to our pieces
 
     /**
-     * Initial board setup: Squares + Pieces
+     * Initial board setup: Squares + Piece
+     * Pieces are also put into a hashmap for easy access
      */
     public Board() {
         // Fill board with squares
+        pieceMap = new HashMap<>();
         board = new Square[8][8];
         boolean isWhite = true;
         for (int row = 0; row < 8; row++) {
@@ -27,32 +30,60 @@ public class Board {
 
         // Fill starting squares with right pieces
         for (int col = 0; col < 8; col++) {
-            board[1][col].setPiece(new Pawn(false, board[1][col]));
-            board[6][col].setPiece(new Pawn(true, board[6][col]));
+            placePiece(PieceType.PAWN, false, 1, col);
+            placePiece(PieceType.PAWN, true, 6, col);
         }
         // Place black pieces
-        board[0][0].setPiece(new Rook(false, board[0][0]));
-        board[0][7].setPiece(new Rook(false, board[0][7]));
-        board[0][1].setPiece(new Knight(false, board[0][1]));
-        board[0][6].setPiece(new Knight(false, board[0][6]));
-        board[0][2].setPiece(new Bishop(false, board[0][2]));
-        board[0][5].setPiece(new Bishop(false, board[0][5]));
-        board[0][3].setPiece(new Queen(false, board[0][3]));
-        board[0][4].setPiece(new King(false, board[0][4]));
+        placePiece(PieceType.ROOK, false, 0, 0);
+        placePiece(PieceType.ROOK, false, 0, 7);
+        placePiece(PieceType.ROOK, true, 7, 0);
+        placePiece(PieceType.ROOK, true, 7, 7);
 
-        // Place white pieces
-        board[7][0].setPiece(new Rook(true, board[7][0]));
-        board[7][7].setPiece(new Rook(true, board[7][7]));
-        board[7][1].setPiece(new Knight(true, board[7][1]));
-        board[7][6].setPiece(new Knight(true, board[7][6]));
-        board[7][2].setPiece(new Bishop(true, board[7][2]));
-        board[7][5].setPiece(new Bishop(true, board[7][5]));
-        board[7][3].setPiece(new Queen(true, board[7][3]));
-        board[7][4].setPiece(new King(true, board[7][4]));
+        placePiece(PieceType.KNIGHT, false, 0, 1);
+        placePiece(PieceType.KNIGHT, false, 0, 6);
+        placePiece(PieceType.KNIGHT, true, 7, 1);
+        placePiece(PieceType.KNIGHT, true, 7, 6);
 
-        // Keep track of king positions for easy access for checkmate scan
-        kingPositions.put(true, board[7][4]); // White King's initial position
-        kingPositions.put(false, board[0][4]); // Black King's initial position
+        placePiece(PieceType.BISHOP, false, 0, 2);
+        placePiece(PieceType.BISHOP, false, 0, 5);
+        placePiece(PieceType.BISHOP, true, 7, 2);
+        placePiece(PieceType.BISHOP, true, 7, 5);
+
+        placePiece(PieceType.QUEEN, false, 0, 3);
+        placePiece(PieceType.QUEEN, true, 7, 3);
+
+        placePiece(PieceType.KING, false, 0, 4);
+        placePiece(PieceType.KING, true, 7, 4);
+
+    }
+
+    private void placePiece(PieceType type, boolean isWhite, int row, int col) {
+        Piece piece;
+        switch (type) {
+            case PAWN:
+                piece = new Pawn(isWhite, board[row][col]);
+                break;
+            case ROOK:
+                piece = new Rook(isWhite, board[row][col]);
+                break;
+            case KNIGHT:
+                piece = new Knight(isWhite, board[row][col]);
+                break;
+            case BISHOP:
+                piece = new Bishop(isWhite, board[row][col]);
+                break;
+            case KING:
+                piece = new King(isWhite, board[row][col]);
+                break;
+            case QUEEN:
+                piece = new Queen(isWhite, board[row][col]);
+                break;
+
+            default:
+                throw new IllegalArgumentException("Invalid piece type: " + type);
+        }
+        board[row][col].setPiece(piece);
+        pieceMap.computeIfAbsent(type, k -> new ArrayList<>()).add(piece);
     }
 
     /**
@@ -134,40 +165,76 @@ public class Board {
     public void movePiece(Square start, Square end) {
         Piece piece = start.getPiece();
         if (piece != null) {
-            // If the piece being moved is a king, update its position in the kingPositions map
-            if (piece.getType() == PieceType.KING) {
-                kingPositions.put(piece.isWhite(), end);
+            // If the piece being moved is a king or rook set it to flag that it has moved.
+            if (piece instanceof King) {
+                ((King) piece).setHasMoved(true);
+            }
+            if (piece instanceof Rook) {
+                ((Rook) piece).setHasMoved(true);
+            }
+            Piece capturedPiece = end.getPiece();
+            if (capturedPiece != null) {
+                updateMap(false, capturedPiece); // Remove the captured piece from the map
             }
             piece.updateSquare(end);
             end.setPiece(piece);
             start.setPiece(null);
+            updateMap(true, piece); // Add the moved piece to the map
         } else {
             throw new IllegalStateException("No piece at the start square");
         }
     }
-    // public void movePiece(Square start, Square end) {
-    // if (start.getPiece().getType() == PieceType.KING) { // If it's a king piece,
-    // update the hashmap
-    // kingPositions.put(start.getPiece().isWhite, end);
-    // }
-    // end.setPiece(start.getPiece());
-    // start.setPiece(null);
-    // end.getPiece().updateSquare(end);
-    // }
 
-    public Square getKingSquare(boolean isWhite) {
-        return kingPositions.get(isWhite);
+    public void undoMove(Move move) {
+        // Move the piece back to its original position
+        movePiece(move.getEnd(), move.getStart());
+        if (move.getCapturedPiece() != null) {
+            // If a piece was captured, add it back to the board and the pieceMap
+            move.getEnd().setPiece(move.getCapturedPiece());
+            updateMap(true, move.getCapturedPiece());
+        }
+        updateMap(true, move.getStart().getPiece()); // Add the moved piece back to the map
     }
 
-    public void undoMove(Square start, Square end, Piece movedPiece, Piece capturedPiece) {
-        if (movedPiece.getType() == PieceType.KING) { // If it's a king piece, update the hashmap
-            kingPositions.put(movedPiece.isWhite(), start);
+    public Square getKingSquare(boolean isWhite) {
+        List<Piece> kingList = pieceMap.get(PieceType.KING);
+        for (Piece king : kingList) {
+            if (king.isWhite() == isWhite) {
+                return king.getLocation();
+            }
         }
-        movedPiece.updateSquare(start);
-        if (capturedPiece != null) {
-            capturedPiece.updateSquare(end);
+        return null; // Return null if no King of the specified color is found
+    }
+
+
+    /**
+     * TODO: implement the actual movements on the board.
+     */
+    private void doEnPassant() {
+
+    }
+
+    private void doCastle() {
+
+    }
+
+    private void doPromotions() {
+
+    }
+
+    /**
+     * Adds or removes the piece from the hashmap
+     * @param addPiece - if true we want to add, else we want to remove
+     * @param piece
+     */
+    public void updateMap(boolean addPiece, Piece piece){
+        List<Piece> pieceList = this.pieceMap.get(piece.getType());
+        if (pieceList != null) {
+            if (addPiece){
+                pieceList.add(piece);
+            }else{
+                pieceList.remove(piece);
+            }
         }
-        start.setPiece(movedPiece);
-        end.setPiece(capturedPiece);
     }
 }

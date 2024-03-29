@@ -28,7 +28,6 @@ public class Game implements GameSubject {
 
     public boolean makeMove(Square start, Square end) {
         Piece startPiece = start.getPiece();
-        System.out.println(startPiece);
         if (startPiece == null || !startPiece.isWhite() == gameState.getCurrentPlayer().isWhite()) {
             System.out.println("Invalid move.");
             return false;
@@ -49,9 +48,6 @@ public class Game implements GameSubject {
         gameState.getCurrentPlayer().updateSquares(start, end);
         gameHistory.recordMove(chosenMove);
 
-
-        switchPlayers();
-        updateGameState();
         return true;
     }
 
@@ -72,15 +68,12 @@ public class Game implements GameSubject {
             // Handle pawn promotion
         } else {
             // Standard move
-
+            Piece capturedPiece = move.getCapturedPiece();
+            if (capturedPiece != null){
+                gameState.getCurrentPlayer().addCaptured(capturedPiece);
+                board.updateMap(false, capturedPiece);
+            }
             board.movePiece(move.getStart(), move.getEnd());
-        }
-        handleCapturedPiece(move.getCapturedPiece());
-    }
-
-    private void handleCapturedPiece(Piece targetPiece) {
-        if (targetPiece != null) {
-            gameState.getCurrentPlayer().addCaptured(targetPiece);
         }
     }
 
@@ -129,7 +122,6 @@ public class Game implements GameSubject {
 
             // Display the board
             board.printBoard();
-            updateGameState();
 
             // Ask the player to select a square
             System.out.println((gameState.getCurrentPlayer().isWhite() ? "White's" : "Black's") + " move: ");
@@ -161,9 +153,12 @@ public class Game implements GameSubject {
                 System.out.println("Invalid move. Please try again.");
             }
 
+            // Update the game state after the move
+            switchPlayers();
+            updateGameState();
+
         }
         System.out.println(gameHistory.getGameHistory());
-
     }
 
 }
