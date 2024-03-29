@@ -5,9 +5,11 @@ import java.util.List;
 
 public class ChessRules {
     private Board board;
+    private GameHistory gameHistory;
 
-    public ChessRules(Board board) {
+    public ChessRules(Board board, GameHistory gameHistory) {
         this.board = board;
+        this.gameHistory = gameHistory;
     }
 
     public boolean scanCheck(Square kingLocation, boolean kingIsWhite) {
@@ -115,7 +117,6 @@ public class ChessRules {
                 return false;
             }
         }
-
         // Check if the rook has moved
         Piece piece = board.getSquare(king.isWhite() ? 7 : 0, kingSide ? 7 : 0).getPiece();
         if (piece == null || !(piece instanceof Rook) || ((Rook) piece).hasMoved()) {
@@ -125,16 +126,38 @@ public class ChessRules {
         return true;
     }
 
-//    private boolean canEnPassant(){
-//
-//    }
+    private boolean canEnPassant(Board board, Square start, Square end) {
+        Piece piece = start.getPiece();
+        if (piece == null || piece.getType() != PieceType.PAWN) {
+            return false;
+        }
+        // Check if the move is a valid en passant move
+        int direction = piece.isWhite() ? -1 : 1;
+        if (end.getRow() == start.getRow() + direction && Math.abs(end.getCol() - start.getCol()) == 1) {
+            // Check if the adjacent square in the direction of the move contains an opponent's pawn
+            Piece adjacentPiece = board.getSquare(start.getRow(), end.getCol()).getPiece();
+            if (adjacentPiece != null && adjacentPiece.getType() == PieceType.PAWN && adjacentPiece.isWhite() != piece.isWhite()) {
+                // Check if the opponent's pawn just moved two squares forward
+                Move lastMove = gameHistory.getLastMove();
+                if (lastMove.getStart().getRow() == start.getRow() && lastMove.getEnd().getRow() == start.getRow() + 2 * direction && lastMove.getEnd().getCol() == end.getCol()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
-//    private boolean canPromote(Piece piece, Board board){
-//        if(){
-//
-//        }
-//
-//    }
+    /**
+     * Checks if piece can promote
+     * @param piece
+     * @return
+     */
+    private boolean canPromote(Piece piece) throws IllegalArgumentException {
+        if (piece.getType() != PieceType.PAWN) {
+            throw new IllegalArgumentException("Only pawns can be promoted");
+        }
+        return (piece.isWhite() && piece.getLocation().getRow() == 0) || (!piece.isWhite() && piece.getLocation().getRow() == 7);
+    }
 
 
     /**

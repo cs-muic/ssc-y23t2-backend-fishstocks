@@ -32,6 +32,7 @@ public class Square {
     public void setPiece(Piece piece) {
         this.piece = piece;
     }
+    public void emptySquare(){ this.piece = null; }
 
     public void removePiece() {
         this.piece = null;
@@ -42,7 +43,7 @@ public class Square {
     public int getCol(){
         return this.col;
     }
-    public boolean getIsWhite(){
+    public boolean isWhite(){
         return isWhite;
     }
 

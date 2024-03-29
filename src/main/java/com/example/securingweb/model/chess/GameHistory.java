@@ -1,40 +1,59 @@
 package com.example.securingweb.model.chess;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class GameHistory {
-    private StringBuilder gameHistory;
-    private StringBuilder playerWhiteHistory;
-    private StringBuilder playerBlackHistory;
-    private int moveNumber;
+    private List<Move> gameHistory;
+    private List<Move> playerWhiteHistory;
+    private List<Move> playerBlackHistory;
 
     GameHistory() {
-        gameHistory = new StringBuilder();
-        playerWhiteHistory = new StringBuilder();
-        playerBlackHistory = new StringBuilder();
-        moveNumber = 1;
+        gameHistory = new ArrayList<>();
+        playerWhiteHistory = new ArrayList<>();
+        playerBlackHistory = new ArrayList<>();
     }
 
-    public String getGameHistory() {
-        return gameHistory.toString();
+    public List<Move> getGameHistory() {
+        return gameHistory;
     }
 
-    public String getPlayerWhiteHistory() {
-        return playerWhiteHistory.toString();
+    public List<Move> getPlayerWhiteHistory() {
+        return playerWhiteHistory;
     }
 
-    public String getPlayerBlackHistory() {
-        return playerBlackHistory.toString();
+    public List<Move> getPlayerBlackHistory() {
+        return playerBlackHistory;
     }
 
-    private StringBuilder getPlayerHistory(Player currentPlayer) {
-        return currentPlayer.isWhite() == true ? playerWhiteHistory : playerBlackHistory;
-    }
-
-    private void incrementMoveNumber() {
-        moveNumber++;
+    private List<Move> getPlayerHistory(Boolean playerIsWhite) {
+        return playerIsWhite ? playerWhiteHistory : playerBlackHistory;
     }
 
     public void recordMove(Move move) {
-        gameHistory.append(move.getNotation());
+        gameHistory.add(move);
+        getPlayerHistory(move.getStart().getPiece().isWhite()).add(move);
     }
 
+    public Move getLastMove() {
+        if (gameHistory.isEmpty()) {
+            return null;
+        }
+        return gameHistory.get(gameHistory.size() - 1);
+    }
+
+    public String printHistory() {
+        StringBuilder history = new StringBuilder();
+        int moveNumber = 1;
+        for (int i = 0; i < gameHistory.size(); i += 2) {
+            history.append(moveNumber).append(". ");
+            history.append(gameHistory.get(i).getNotation());
+            if (i + 1 < gameHistory.size()) {
+                history.append(" ").append(gameHistory.get(i + 1).getNotation());
+            }
+            history.append("\n");
+            moveNumber++;
+        }
+        return history.toString();
+    }
 }

@@ -22,7 +22,7 @@ public class Game implements GameSubject {
         playerBlack = new Player(false, board);
         gameState = new GameState(playerWhite);
         gameHistory = new GameHistory();
-        rules = new ChessRules(board);
+        rules = new ChessRules(board, gameHistory);
 
     }
 

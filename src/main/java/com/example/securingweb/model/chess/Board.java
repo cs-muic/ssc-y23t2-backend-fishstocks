@@ -178,7 +178,7 @@ public class Board {
             }
             piece.updateSquare(end);
             end.setPiece(piece);
-            start.setPiece(null);
+            start.emptySquare();
             updateMap(true, piece); // Add the moved piece to the map
         } else {
             throw new IllegalStateException("No piece at the start square");
@@ -210,15 +210,19 @@ public class Board {
     /**
      * TODO: implement the actual movements on the board.
      */
-    private void doEnPassant() {
+    private void doEnPassant(Piece attackingPawn, Piece targetPawn) {
+        // Kills the target pawn so hashmap needs to be updated
+        updateMap(false, targetPawn);
+        // Remove from the board
+        Square loc = targetPawn.getLocation();
+        loc.emptySquare();
+    }
+
+    private void doCastle(Piece Rook, Piece King) {
 
     }
 
-    private void doCastle() {
-
-    }
-
-    private void doPromotions() {
+    private void doPromotions(Piece pawnPiece, Piece promotedPiece) {
 
     }
 
