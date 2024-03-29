@@ -53,26 +53,36 @@ public class Game implements GameSubject {
 
     /**
      * TODO: implement these if else
-     * 
+     *
      * @param move
      */
     private void executeMove(Move move) {
+        Scanner scanner = new Scanner(System.in);
+
         // Handle special moves -> castling, en passant, and promotion
         if (move.isCastle()) {
             board.doCastle(move.getMovedPiece(), move.getCapturedPiece());
-        }else if (move.isEnPassantCapture()) {
+        } else if (move.isEnPassantCapture()) {
             board.doEnPassant(move.getMovedPiece(), move.getCapturedPiece());
         } else if (move.getPromotionType() != null) {
             // Handle pawn promotion
+            System.out.println("What piece would you like? [q,r,b,n] ");
+            String input = scanner.nextLine();
+            PieceType type = PieceFactory.getPieceTypeFromInput(input);
+            String name = board.generatePieceName(type, gameState.getCurrentPlayer().isWhite());
+            Piece newPiece = PieceFactory.createPiece(name, type, gameState.getCurrentPlayer().isWhite(), move.getEnd());
+            board.doPromotions(move.getMovedPiece(), newPiece);
         } else {
             // Standard move
             Piece capturedPiece = move.getCapturedPiece();
-            if (capturedPiece != null){
+            if (capturedPiece != null) {
                 gameState.getCurrentPlayer().addCaptured(capturedPiece);
                 board.updateMap(false, capturedPiece);
             }
             board.movePiece(move.getStart(), move.getEnd());
         }
+        switchPlayers();
+
     }
 
     private void switchPlayers() {
@@ -111,52 +121,62 @@ public class Game implements GameSubject {
 
     /**
      * Play loop for console
-     * 
      */
     public void play() {
         Scanner scanner = new Scanner(System.in);
 
         while (!gameState.isCheckmate() && !gameState.isStalemate()) {
-
             // Display the board
             board.printBoard();
-
             // Ask the player to select a square
             System.out.println((gameState.getCurrentPlayer().isWhite() ? "White's" : "Black's") + " move: ");
             System.out.println("Select a square: ");
             String squareInput = scanner.nextLine();
             String[] squareParts = squareInput.split(",");
-            int squareRow = Integer.parseInt(squareParts[0]);
-            int squareCol = Integer.parseInt(squareParts[1]);
-            Square selectedSquare = board.getSquare(squareRow, squareCol);
+            if (squareParts.length != 2) {
+                System.out.println("Invalid input. Please enter a valid square in the format 'row,column'.");
+                continue;
+            }
+            try {
+                int squareRow = Integer.parseInt(squareParts[0]);
+                int squareCol = Integer.parseInt(squareParts[1]);
+                Square selectedSquare = board.getSquare(squareRow, squareCol);
 
-            if (selectedSquare.getPiece().isWhite() != gameState.getCurrentPlayer().isWhite()) {
-                System.out.println("You can only move your own pieces.");
+                if (selectedSquare.getPiece().isWhite() != gameState.getCurrentPlayer().isWhite()) {
+                    System.out.println("You can only move your own pieces.");
+                    continue;
+                }
+
+                // Display the possible moves for the selected piece
+                board.displayMovableSquares(rules, selectedSquare);
+
+                // Ask the player to select a move
+                System.out.println("Select a move: ");
+                String moveInput = scanner.nextLine();
+                String[] moveParts = moveInput.split(",");
+                if (moveParts.length != 2) {
+                    System.out.println("Invalid input. Please enter a valid move in the format 'row,column'.");
+                    continue;
+                }
+                int moveRow = Integer.parseInt(moveParts[0]);
+                int moveCol = Integer.parseInt(moveParts[1]);
+                Square targetSquare = board.getSquare(moveRow, moveCol);
+
+                // Make the move
+                if (!makeMove(selectedSquare, targetSquare)) {
+                    System.out.println("Invalid move. Please try again.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a valid move.");
                 continue;
             }
 
-            // Display the possible moves for the selected piece
-            board.displayMovableSquares(rules, selectedSquare);
-
-            // Ask the player to select a move
-            System.out.println("Select a move: ");
-            String moveInput = scanner.nextLine();
-            String[] moveParts = moveInput.split(",");
-            int moveRow = Integer.parseInt(moveParts[0]);
-            int moveCol = Integer.parseInt(moveParts[1]);
-            Square targetSquare = board.getSquare(moveRow, moveCol);
-
-            // Make the move
-            if (!makeMove(selectedSquare, targetSquare)) {
-                System.out.println("Invalid move. Please try again.");
-            }
-
             // Update the game state after the move
-            switchPlayers();
             updateGameState();
-
         }
-        System.out.println(gameHistory.getGameHistory());
+
+        board.printBoard();
+        System.out.println(gameHistory.getHisotryString());
     }
 
 }

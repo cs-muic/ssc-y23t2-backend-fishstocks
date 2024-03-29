@@ -18,14 +18,6 @@ public class GameHistory {
         return gameHistory;
     }
 
-    public List<Move> getPlayerWhiteHistory() {
-        return playerWhiteHistory;
-    }
-
-    public List<Move> getPlayerBlackHistory() {
-        return playerBlackHistory;
-    }
-
     private List<Move> getPlayerHistory(Boolean playerIsWhite) {
         return playerIsWhite ? playerWhiteHistory : playerBlackHistory;
     }
@@ -42,7 +34,7 @@ public class GameHistory {
         return gameHistory.get(gameHistory.size() - 1);
     }
 
-    public String printHistory() {
+    public String getHisotryString() {
         StringBuilder history = new StringBuilder();
         int moveNumber = 1;
         for (int i = 0; i < gameHistory.size(); i += 2) {

@@ -171,8 +171,9 @@ public class ChessRules {
 
         // If King piece, check for castling
         if (piece instanceof King) {
-            addCastleMove(board, piece, true, 6, legalMoves);
-            addCastleMove(board, piece, false, 2, legalMoves);
+            addCastleMove(board, piece, true, legalMoves);
+            addCastleMove(board, piece, false, legalMoves);
+
         }
 
         for (Move move : possibleMoves) {
@@ -190,11 +191,14 @@ public class ChessRules {
         }
         return legalMoves;
     }
-    private void addCastleMove(Board board, Piece piece, boolean isKingSide, int rookColumn, List<Move> legalMoves) {
+    private void addCastleMove(Board board, Piece piece, boolean isKingSide, List<Move> legalMoves) {
         if (canCastle(board, isKingSide, piece)) {
             int row = piece.isWhite() ? 7 : 0;
-            Piece rook = board.getSquare(row, rookColumn).getPiece();
-            legalMoves.add(new Move(board.getKingSquare(piece.isWhite()), board.getSquare(row, rookColumn), piece, rook, false, true, null));
+            int kingColumn = isKingSide ? 6 : 2; // King moves to column 6 (G) if kingside, 2 (C) if queenside
+            int rookColumn = isKingSide ? 7 : 0; // Rook is at column 7 (H) if kingside, 0 (A) if queenside
+            Piece king = board.getKingSquare(piece.isWhite()).getPiece();
+            Piece rook = board.getSquare(row, rookColumn).getPiece(); // Get the correct rook based on the castle side
+            legalMoves.add(new Move(board.getKingSquare(piece.isWhite()), board.getSquare(row, kingColumn), king, rook, false, true, null));
         }
     }
 
