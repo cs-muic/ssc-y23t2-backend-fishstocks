@@ -6,8 +6,8 @@ import java.util.List;
 public class Rook extends Piece {
     private boolean hasMoved;
 
-    public Rook(boolean isWhite, Square square) {
-        super(isWhite, PieceType.ROOK, square, isWhite ? 'R' : 'r');
+    public Rook(String name, boolean isWhite, Square square) {
+        super(name, isWhite, PieceType.ROOK, square, isWhite ? 'R' : 'r');
         hasMoved = false;
     }
 
@@ -26,10 +26,10 @@ public class Rook extends Piece {
                     break;
                 Square targetSquare = board.getSquare(newRow, newCol);
                 if (!targetSquare.isOccupied()) {
-                    moves.add(new Move(this.square, targetSquare, this, null, false, false, false, null)); // No capture
+                    moves.add(new Move(this.square, targetSquare, this, null, false, false, null)); // No capture
                 } else {
                     if (targetSquare.getPiece().isWhite() != this.isWhite()) {
-                        moves.add(new Move(this.square, targetSquare, this, targetSquare.getPiece(), false, false,
+                        moves.add(new Move(this.square, targetSquare, this, targetSquare.getPiece(), false,
                                 false, null)); // Capture
                     }
                     break; // Stop moving in this direction after a capture or hitting a friendly piece

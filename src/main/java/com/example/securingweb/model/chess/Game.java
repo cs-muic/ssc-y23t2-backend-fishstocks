@@ -58,12 +58,10 @@ public class Game implements GameSubject {
      */
     private void executeMove(Move move) {
         // Handle special moves -> castling, en passant, and promotion
-        if (move.isCastlingKingSide()) {
-            // Update both the king and rook positions
-        } else if (move.isCastlingQueenSide()) {
-
-        } else if (move.isEnPassantCapture()) {
-            // Handle en passant capture
+        if (move.isCastle()) {
+            board.doCastle(move.getMovedPiece(), move.getCapturedPiece());
+        }else if (move.isEnPassantCapture()) {
+            board.doEnPassant(move.getMovedPiece(), move.getCapturedPiece());
         } else if (move.getPromotionType() != null) {
             // Handle pawn promotion
         } else {

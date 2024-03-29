@@ -32,7 +32,7 @@ public class GameHistory {
 
     public void recordMove(Move move) {
         gameHistory.add(move);
-        getPlayerHistory(move.getStart().getPiece().isWhite()).add(move);
+        getPlayerHistory(move.getMovedPiece().isWhite()).add(move);
     }
 
     public Move getLastMove() {

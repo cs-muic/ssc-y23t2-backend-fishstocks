@@ -5,8 +5,8 @@ import java.util.List;
 
 public class Knight extends Piece {
 
-    public Knight(boolean isWhite, Square square) {
-        super(isWhite, PieceType.KNIGHT, square, isWhite ? 'N' : 'n');
+    public Knight(String name, boolean isWhite, Square square) {
+        super(name, isWhite, PieceType.KNIGHT, square, isWhite ? 'N' : 'n');
     }
 
     @Override
@@ -20,7 +20,7 @@ public class Knight extends Piece {
             if (board.isPositionValid(newRow, newCol)) {
                 Square targetSquare = board.getSquare(newRow, newCol);
                 if (!targetSquare.isOccupied() || targetSquare.getPiece().isWhite() != this.isWhite()) {
-                    moves.add(new Move(this.square, targetSquare, this, targetSquare.getPiece(), false, false, false,
+                    moves.add(new Move(this.square, targetSquare, this, targetSquare.getPiece(), false, false,
                             null)); // Possible capture
                 }
             }

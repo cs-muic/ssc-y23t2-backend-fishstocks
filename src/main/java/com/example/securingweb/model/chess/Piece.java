@@ -3,6 +3,7 @@ package com.example.securingweb.model.chess;
 import java.util.List;
 
 public abstract class Piece {
+    protected String pieceName;
     protected Square square; // Position on the board
     protected boolean isWhite;
     protected PieceType type;
@@ -12,7 +13,7 @@ public abstract class Piece {
         return symbol; // Currently is symbol for console but will need to be switched to png
     }
 
-    public Piece(boolean isWhite, PieceType type, Square square, char symbol) {
+    public Piece(String pieceName, boolean isWhite, PieceType type, Square square, char symbol) {
         this.isWhite = isWhite;
         this.type = type;
         this.square = square;
@@ -35,5 +36,9 @@ public abstract class Piece {
 
     public void updateSquare(Square square) {
         this.square = square;
+    }
+
+    public String getName() {
+        return this.pieceName;
     }
 }

@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class Board {
     private final Square[][] board;
-    private final Map<PieceType, List<Piece>> pieceMap; // Hashmap for easy access to our pieces
+    private final Map<PieceType, HashMap<String, Piece>> pieceMap; // Hashmap for easy access to our pieces
 
     /**
      * Initial board setup: Squares + Piece
@@ -16,6 +16,9 @@ public class Board {
     public Board() {
         // Fill board with squares
         pieceMap = new HashMap<>();
+        for (PieceType type : PieceType.values()) {
+            pieceMap.put(type, new HashMap<>());
+        }
         board = new Square[8][8];
         boolean isWhite = true;
         for (int row = 0; row < 8; row++) {
@@ -30,60 +33,60 @@ public class Board {
 
         // Fill starting squares with right pieces
         for (int col = 0; col < 8; col++) {
-            placePiece(PieceType.PAWN, false, 1, col);
-            placePiece(PieceType.PAWN, true, 6, col);
+            placePiece("pawn_b_" + (col + 1), PieceType.PAWN, false, 1, col);
+            placePiece("pawn_w_" + (col + 1), PieceType.PAWN, true, 6, col);
         }
         // Place black pieces
-        placePiece(PieceType.ROOK, false, 0, 0);
-        placePiece(PieceType.ROOK, false, 0, 7);
-        placePiece(PieceType.ROOK, true, 7, 0);
-        placePiece(PieceType.ROOK, true, 7, 7);
+        placePiece("rook_b_1", PieceType.ROOK, false, 0, 0);
+        placePiece("rook_b_2", PieceType.ROOK, false, 0, 7);
+        placePiece("rook_w_1", PieceType.ROOK, true, 7, 0);
+        placePiece("rook_w_2", PieceType.ROOK, true, 7, 7);
 
-        placePiece(PieceType.KNIGHT, false, 0, 1);
-        placePiece(PieceType.KNIGHT, false, 0, 6);
-        placePiece(PieceType.KNIGHT, true, 7, 1);
-        placePiece(PieceType.KNIGHT, true, 7, 6);
+        placePiece("knight_b_1", PieceType.KNIGHT, false, 0, 1);
+        placePiece("knight_b_2", PieceType.KNIGHT, false, 0, 6);
+        placePiece("knight_w_1", PieceType.KNIGHT, true, 7, 1);
+        placePiece("knight_w_2", PieceType.KNIGHT, true, 7, 6);
 
-        placePiece(PieceType.BISHOP, false, 0, 2);
-        placePiece(PieceType.BISHOP, false, 0, 5);
-        placePiece(PieceType.BISHOP, true, 7, 2);
-        placePiece(PieceType.BISHOP, true, 7, 5);
+        placePiece("bishop_b_1", PieceType.BISHOP, false, 0, 2);
+        placePiece("bishop_b_2", PieceType.BISHOP, false, 0, 5);
+        placePiece("bishop_w_1", PieceType.BISHOP, true, 7, 2);
+        placePiece("bishop_w_2", PieceType.BISHOP, true, 7, 5);
 
-        placePiece(PieceType.QUEEN, false, 0, 3);
-        placePiece(PieceType.QUEEN, true, 7, 3);
+        placePiece("queen_b_1", PieceType.QUEEN, false, 0, 3);
+        placePiece("queen_w_1", PieceType.QUEEN, true, 7, 3);
 
-        placePiece(PieceType.KING, false, 0, 4);
-        placePiece(PieceType.KING, true, 7, 4);
-
+        placePiece("king_b_1", PieceType.KING, false, 0, 4);
+        placePiece("king_w_1", PieceType.KING, true, 7, 4);
     }
 
-    private void placePiece(PieceType type, boolean isWhite, int row, int col) {
+    private void placePiece(String name, PieceType type, boolean isWhite, int row, int col) {
         Piece piece;
         switch (type) {
             case PAWN:
-                piece = new Pawn(isWhite, board[row][col]);
+                piece = new Pawn(name, isWhite, board[row][col]);
                 break;
             case ROOK:
-                piece = new Rook(isWhite, board[row][col]);
+                piece = new Rook(name, isWhite, board[row][col]);
                 break;
             case KNIGHT:
-                piece = new Knight(isWhite, board[row][col]);
+                piece = new Knight(name, isWhite, board[row][col]);
                 break;
             case BISHOP:
-                piece = new Bishop(isWhite, board[row][col]);
+                piece = new Bishop(name, isWhite, board[row][col]);
                 break;
             case KING:
-                piece = new King(isWhite, board[row][col]);
+                piece = new King(name, isWhite, board[row][col]);
                 break;
             case QUEEN:
-                piece = new Queen(isWhite, board[row][col]);
+                piece = new Queen(name, isWhite, board[row][col]);
                 break;
 
             default:
                 throw new IllegalArgumentException("Invalid piece type: " + type);
         }
         board[row][col].setPiece(piece);
-        pieceMap.computeIfAbsent(type, k -> new ArrayList<>()).add(piece);
+        pieceMap.get(type).put(name, piece);
+
     }
 
     /**
@@ -123,7 +126,7 @@ public class Board {
                     displayChar = currPiece.getSymbol();
                 } else {
                     // Differentiate color for empty squares more visibly
-                    displayChar = currSquare.getIsWhite() ? '.' : '-'; // Using '.' for white, ':' for black for
+                    displayChar = currSquare.isWhite() ? '.' : '-'; // Using '.' for white, ':' for black for
                     // visibility
                 }
 
@@ -197,33 +200,49 @@ public class Board {
     }
 
     public Square getKingSquare(boolean isWhite) {
-        List<Piece> kingList = pieceMap.get(PieceType.KING);
-        for (Piece king : kingList) {
-            if (king.isWhite() == isWhite) {
-                return king.getLocation();
-            }
+        HashMap<String, Piece> kingMap = pieceMap.get(PieceType.KING);
+        if(isWhite){
+            return kingMap.get("king_w_1").getLocation();
+        }else{
+            return kingMap.get("king_b_1").getLocation();
         }
-        return null; // Return null if no King of the specified color is found
     }
 
-
-    /**
-     * TODO: implement the actual movements on the board.
-     */
-    private void doEnPassant(Piece attackingPawn, Piece targetPawn) {
+    public void doEnPassant(Piece attackingPawn, Piece targetPawn) {
         // Kills the target pawn so hashmap needs to be updated
         updateMap(false, targetPawn);
         // Remove from the board
-        Square loc = targetPawn.getLocation();
+        Square location = targetPawn.getLocation();
+        location.emptySquare();
+        // Move the attacking pawn to the target pawn's square
+        attackingPawn.updateSquare(location);
+        location.setPiece(attackingPawn);
+    }
+
+    public void doCastle(Piece king, Piece rook) {
+        // Get the original locations
+        Square kingStart = king.getLocation();
+        Square rookStart = rook.getLocation();
+
+        // Determine the new locations
+        Square rookEnd = (rookStart.getCol() < 4) ? board[rookStart.getRow()][3] : board[rookStart.getRow()][5];
+        Square kingEnd = (kingStart.getCol() < 4) ? board[kingStart.getRow()][2] : board[kingStart.getRow()][6];
+
+        // Move the pieces
+        movePiece(rookStart, rookEnd);
+        movePiece(kingStart, kingEnd);
+    }
+
+    public void doPromotions(Piece pawnPiece, Piece promotedPiece) {
+        // Remove the pawn from the board and the pieceMap
+        updateMap(false, pawnPiece);
+        Square loc = pawnPiece.getLocation();
         loc.emptySquare();
-    }
 
-    private void doCastle(Piece Rook, Piece King) {
-
-    }
-
-    private void doPromotions(Piece pawnPiece, Piece promotedPiece) {
-
+        // Add the promoted piece to the board and the pieceMap
+        promotedPiece.updateSquare(loc);
+        loc.setPiece(promotedPiece);
+        updateMap(true, promotedPiece);
     }
 
     /**
@@ -232,13 +251,14 @@ public class Board {
      * @param piece
      */
     public void updateMap(boolean addPiece, Piece piece){
-        List<Piece> pieceList = this.pieceMap.get(piece.getType());
-        if (pieceList != null) {
+        HashMap<String, Piece> pieceMap = this.pieceMap.get(piece.getType());
+        if (pieceMap != null) {
             if (addPiece){
-                pieceList.add(piece);
+                pieceMap.put(piece.getName(), piece);
             }else{
-                pieceList.remove(piece);
+                pieceMap.remove(piece.getName());
             }
         }
     }
+
 }

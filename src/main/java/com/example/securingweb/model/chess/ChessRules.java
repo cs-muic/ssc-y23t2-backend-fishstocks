@@ -90,8 +90,7 @@ public class ChessRules {
 
     public boolean isMoveLegal(Move move, Player currentPlayer) {
         // These special types have already been checked
-        if (move.isCastlingQueenSide()
-                || move.isCastlingKingSide()
+        if (move.isCastle()
                 || move.isEnPassantCapture()
                 || move.getPromotionType() != null){
             return true;
@@ -122,7 +121,6 @@ public class ChessRules {
         if (piece == null || !(piece instanceof Rook) || ((Rook) piece).hasMoved()) {
             return false;
         }
-
         return true;
     }
 
@@ -172,15 +170,9 @@ public class ChessRules {
         List<Move> legalMoves = new ArrayList<>();
 
         // If King piece, check for castling
-        if (piece instanceof King){
-            if(canCastle(board, true, piece)){
-                legalMoves.add(new Move(board.getKingSquare(piece.isWhite()), board.getSquare(piece.isWhite() ? 7 : 0, 6), piece, null, false, true, false,
-                        null));
-            }
-            if(canCastle(board, false, piece)){
-                legalMoves.add(new Move(board.getKingSquare(piece.isWhite()), board.getSquare(piece.isWhite() ? 7 : 0, 2), piece, null, false, false, true,
-                        null));
-            }
+        if (piece instanceof King) {
+            addCastleMove(board, piece, true, 6, legalMoves);
+            addCastleMove(board, piece, false, 2, legalMoves);
         }
 
         for (Move move : possibleMoves) {
@@ -197,6 +189,13 @@ public class ChessRules {
             }
         }
         return legalMoves;
+    }
+    private void addCastleMove(Board board, Piece piece, boolean isKingSide, int rookColumn, List<Move> legalMoves) {
+        if (canCastle(board, isKingSide, piece)) {
+            int row = piece.isWhite() ? 7 : 0;
+            Piece rook = board.getSquare(row, rookColumn).getPiece();
+            legalMoves.add(new Move(board.getKingSquare(piece.isWhite()), board.getSquare(row, rookColumn), piece, rook, false, true, null));
+        }
     }
 
     public boolean canMoveTo(Piece currPiece, Square targetSquare, Board board) {

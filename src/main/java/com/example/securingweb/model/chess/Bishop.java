@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Bishop extends Piece {
-    public Bishop(boolean isWhite, Square square) {
-        super(isWhite, PieceType.BISHOP, square, isWhite ? 'B' : 'b');
+    public Bishop(String name, boolean isWhite, Square square) {
+        super(name, isWhite, PieceType.BISHOP, square, isWhite ? 'B' : 'b');
     }
 
     @Override
@@ -23,11 +23,11 @@ public class Bishop extends Piece {
                     break;
                 Square targetSquare = board.getSquare(newRow, newCol);
                 if (!targetSquare.isOccupied()) {
-                    moves.add(new Move(this.square, targetSquare, this, null, false, false, false, null)); // No capture
+                    moves.add(new Move(this.square, targetSquare, this, null, false, false, null)); // No capture
                 } else {
                     if (targetSquare.getPiece().isWhite() != this.isWhite()) {
                         moves.add(new Move(this.square, targetSquare, this, targetSquare.getPiece(), false, false,
-                                false, null)); // Capture
+                                null)); // Capture
                     }
                     break;
                 }

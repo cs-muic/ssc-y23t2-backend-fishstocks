@@ -8,8 +8,8 @@ public class King extends Piece {
     private boolean canCastleQS;
     private boolean canCastleKS;
 
-    public King(boolean isWhite, Square square) {
-        super(isWhite, PieceType.KING, square, isWhite ? 'K' : 'k');
+    public King(String name, boolean isWhite, Square square) {
+        super(name, isWhite, PieceType.KING, square, isWhite ? 'K' : 'k');
         hasMoved = false;
         canCastleKS = false; // will need to check in game rules
         canCastleQS = false;
@@ -27,7 +27,7 @@ public class King extends Piece {
                 Square targetSquare = board.getSquare(newRow, newCol);
                 if (targetSquare != null
                         && (!targetSquare.isOccupied() || targetSquare.getPiece().isWhite() != this.isWhite())) {
-                    moves.add(new Move(this.square, targetSquare, this, targetSquare.getPiece(), false, false, false,
+                    moves.add(new Move(this.square, targetSquare, this, targetSquare.getPiece(), false, false,
                             null));
                 }
             }

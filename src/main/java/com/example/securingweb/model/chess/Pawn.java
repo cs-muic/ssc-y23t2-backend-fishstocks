@@ -6,8 +6,8 @@ import java.util.List;
 public class Pawn extends Piece {
     protected boolean hasMoved;
 
-    public Pawn(boolean isWhite, Square square) {
-        super(isWhite, PieceType.PAWN, square, isWhite ? 'P' : 'p');
+    public Pawn(String name, boolean isWhite, Square square) {
+        super(name, isWhite, PieceType.PAWN, square, isWhite ? 'P' : 'p');
         hasMoved = false;
     }
 
@@ -20,7 +20,7 @@ public class Pawn extends Piece {
         // Single square forward
         int newRow = square.getRow() + direction;
         if (board.isPositionValid(newRow, square.getCol()) && !board.getSquare(newRow, square.getCol()).isOccupied()) {
-            moves.add(new Move(this.square, board.getSquare(newRow, square.getCol()), this, null, false, false, false,
+            moves.add(new Move(this.square, board.getSquare(newRow, square.getCol()), this, null, false, false,
                     null)); // No capture, not en passant, not a promotion
 
             // Double square forward from start
@@ -29,7 +29,7 @@ public class Pawn extends Piece {
                 if (board.isPositionValid(doubleForwardRow, square.getCol())
                         && !board.getSquare(doubleForwardRow, square.getCol()).isOccupied()) {
                     moves.add(new Move(this.square, board.getSquare(doubleForwardRow, square.getCol()), this, null,
-                            false, false, false, null));
+                            false, false, null));
                 }
             }
         }
@@ -40,7 +40,7 @@ public class Pawn extends Piece {
             if (board.isPositionValid(newRow, captureCol)) {
                 Square targetSquare = board.getSquare(newRow, captureCol);
                 if (targetSquare.isOccupied() && targetSquare.getPiece().isWhite() != this.isWhite()) {
-                    moves.add(new Move(this.square, targetSquare, this, targetSquare.getPiece(), false, false, false,
+                    moves.add(new Move(this.square, targetSquare, this, targetSquare.getPiece(), false, false,
                             null));
                 }
             }
