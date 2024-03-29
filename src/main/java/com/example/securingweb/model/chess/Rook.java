@@ -4,11 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Rook extends Piece {
-    private boolean hasMoved;
 
     public Rook(String name, boolean isWhite, Square square) {
         super(name, isWhite, PieceType.ROOK, square, isWhite ? 'R' : 'r');
-        hasMoved = false;
     }
 
     @Override
@@ -39,11 +37,4 @@ public class Rook extends Piece {
         return moves;
     }
 
-    public boolean hasMoved() {
-        return hasMoved;
-    }
-
-    public void setHasMoved(boolean hasMoved) {
-        this.hasMoved = hasMoved;
-    }
 }

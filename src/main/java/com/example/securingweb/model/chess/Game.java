@@ -128,6 +128,10 @@ public class Game implements GameSubject {
         while (!gameState.isCheckmate() && !gameState.isStalemate()) {
             // Display the board
             board.printBoard();
+            Piece piece = board.getSquare(0,0).getPiece();
+            if(piece instanceof Rook){
+            }
+
             // Ask the player to select a square
             System.out.println((gameState.getCurrentPlayer().isWhite() ? "White's" : "Black's") + " move: ");
             System.out.println("Select a square: ");

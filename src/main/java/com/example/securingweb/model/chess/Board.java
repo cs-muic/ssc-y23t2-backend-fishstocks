@@ -1,6 +1,5 @@
 package com.example.securingweb.model.chess;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +69,7 @@ public class Board {
 
     /**
      * Checks that the row and col is within the board's bounds
-     * 
+     *
      * @param row
      * @param col
      * @return true if within board
@@ -81,7 +80,7 @@ public class Board {
 
     /**
      * Returns the square on that board coordinate
-     * 
+     *
      * @param row
      * @param col
      * @return
@@ -117,7 +116,7 @@ public class Board {
 
     /**
      * Will display the squares that a piece can move to
-     * 
+     *
      * @param selectedSquare
      */
     public void displayMovableSquares(ChessRules rules, Square selectedSquare) {
@@ -147,13 +146,6 @@ public class Board {
     public void movePiece(Square start, Square end) {
         Piece piece = start.getPiece();
         if (piece != null) {
-            // If the piece being moved is a king or rook set it to flag that it has moved.
-            if (piece instanceof King) {
-                ((King) piece).setHasMoved(true);
-            }
-            if (piece instanceof Rook) {
-                ((Rook) piece).setHasMoved(true);
-            }
             Piece capturedPiece = end.getPiece();
             if (capturedPiece != null) {
                 updateMap(false, capturedPiece); // Remove the captured piece from the map
@@ -162,6 +154,8 @@ public class Board {
             end.setPiece(piece);
             start.emptySquare();
             updateMap(true, piece); // Add the moved piece to the map
+
+            piece.incrementMoveCount();
         } else {
             throw new IllegalStateException("No piece at the start square");
         }
@@ -169,13 +163,27 @@ public class Board {
 
     public void undoMove(Move move) {
         // Move the piece back to its original position
-        movePiece(move.getEnd(), move.getStart());
+        Piece piece = move.getEnd().getPiece();
+        if (piece != null) {
+            Piece capturedPiece = move.getStart().getPiece();
+            if (capturedPiece != null) {
+                updateMap(true, capturedPiece); // Add the captured piece back to the map
+            }
+            piece.updateSquare(move.getStart());
+            move.getStart().setPiece(piece);
+            move.getEnd().emptySquare();
+            updateMap(true, piece); // Add the moved piece back to the map
+
+            piece.decrementMoveCount();
+        } else {
+            throw new IllegalStateException("No piece at the end square");
+        }
+
         if (move.getCapturedPiece() != null) {
             // If a piece was captured, add it back to the board and the pieceMap
             move.getEnd().setPiece(move.getCapturedPiece());
             updateMap(true, move.getCapturedPiece());
         }
-        updateMap(true, move.getStart().getPiece()); // Add the moved piece back to the map
     }
 
     public Square getKingSquare(boolean isWhite) {
@@ -199,18 +207,22 @@ public class Board {
 
     public void doCastle(Piece king, Piece rook) {
         // Get the original locations
-        System.out.println(rook);
         Square kingStart = king.getLocation();
         Square rookStart = rook.getLocation();
 
         // Determine the new locations
-        Square rookEnd = (rookStart.getCol() < 4) ? board[rookStart.getRow()][3] : board[rookStart.getRow()][5];
-        Square kingEnd = (kingStart.getCol() < 4) ? board[kingStart.getRow()][2] : board[kingStart.getRow()][6];
+        Square rookEnd, kingEnd;
+        if (rookStart.getCol() > kingStart.getCol()) { // Kingside castle
+            rookEnd = board[rookStart.getRow()][5];
+            kingEnd = board[kingStart.getRow()][6];
+        } else { // Queenside castle
+            rookEnd = board[rookStart.getRow()][3];
+            kingEnd = board[kingStart.getRow()][2];
+        }
 
         // Move the pieces
         movePiece(rookStart, rookEnd);
         movePiece(kingStart, kingEnd);
-        System.out.println("completed movepiece in docastle");
     }
 
     public void doPromotions(Piece pawnPiece, Piece promotedPiece) {
@@ -246,4 +258,5 @@ public class Board {
         int count = pieceMap.get(type).get(isWhite).size() + 1;
         return type.toString().toLowerCase() + "_" + color + "_" + count;
     }
+
 }

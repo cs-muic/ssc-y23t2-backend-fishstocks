@@ -36,13 +36,6 @@ public class King extends Piece {
         return moves;
     }
 
-    public boolean hasMoved() {
-        return hasMoved;
-    }
-
-    public void setHasMoved(boolean hasMoved) {
-        this.hasMoved = hasMoved;
-    }
 
     public void setCanCastleQS(boolean canCastle) {
         this.canCastleQS = canCastle;

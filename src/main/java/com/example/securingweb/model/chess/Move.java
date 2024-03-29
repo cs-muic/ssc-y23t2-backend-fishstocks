@@ -22,6 +22,7 @@ public class Move {
         this.isCastle = isCastle;
         this.promotionType = promotionType;
         this.notation = makeNotation();
+
     }
 
     public Square getStart() {

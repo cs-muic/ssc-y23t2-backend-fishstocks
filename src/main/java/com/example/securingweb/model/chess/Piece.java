@@ -8,6 +8,7 @@ public abstract class Piece {
     protected boolean isWhite;
     protected PieceType type;
     protected char symbol;
+    protected int moveCount;
 
     public char getSymbol() {
         return symbol; // Currently is symbol for console but will need to be switched to png
@@ -18,6 +19,7 @@ public abstract class Piece {
         this.type = type;
         this.square = square;
         this.symbol = symbol;
+        this.moveCount = 0;
     }
 
     public abstract List<Move> getUnfilteredMoves(Board board);
@@ -40,5 +42,20 @@ public abstract class Piece {
 
     public String getName() {
         return this.pieceName;
+    }    public void incrementMoveCount() {
+        moveCount++;
     }
+
+    public void decrementMoveCount() {
+        if (moveCount > 0) {
+            moveCount--;
+        }
+    }
+
+    public int getMoveCount(){return moveCount;}
+
+    public boolean hasMoved() {
+        return moveCount > 0;
+    }
+
 }

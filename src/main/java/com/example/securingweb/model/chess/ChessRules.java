@@ -111,6 +111,8 @@ public class ChessRules {
         // Check if the squares between the king and the rook are empty
         int start = kingSide ? 5 : 1;
         int end = kingSide ? 6 : 3;
+
+        // Check if the squares between king and rook are free
         for (int i = start; i <= end; i++) {
             if (board.getSquare(king.isWhite() ? 7 : 0, i).isOccupied()) {
                 return false;
@@ -118,7 +120,10 @@ public class ChessRules {
         }
         // Check if the rook has moved
         Piece piece = board.getSquare(king.isWhite() ? 7 : 0, kingSide ? 7 : 0).getPiece();
-        if (piece == null || !(piece instanceof Rook) || ((Rook) piece).hasMoved()) {
+        System.out.println("DEBUG: " + piece.getLocation().getRow() +", "+ piece.getLocation().getCol());
+        if (piece == null || !(piece instanceof Rook) || piece.hasMoved()) {
+            System.out.println("Rook has already moved");
+            System.out.println("Rook location:"+piece.getLocation().getRow()+","+piece.getLocation().getCol());
             return false;
         }
         return true;
@@ -202,8 +207,4 @@ public class ChessRules {
         }
     }
 
-    public boolean canMoveTo(Piece currPiece, Square targetSquare, Board board) {
-        List<Move> possibleMoves = currPiece.getUnfilteredMoves(board);
-        return possibleMoves.contains(targetSquare);
-    }
 }
