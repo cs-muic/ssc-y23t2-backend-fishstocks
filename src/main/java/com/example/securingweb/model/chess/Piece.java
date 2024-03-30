@@ -1,5 +1,7 @@
 package com.example.securingweb.model.chess;
 
+import lombok.Getter;
+
 import java.util.List;
 
 public abstract class Piece {
@@ -7,12 +9,11 @@ public abstract class Piece {
     protected Square square; // Position on the board
     protected boolean isWhite;
     protected PieceType type;
+    // Currently is symbol for console but will need to be switched to png
+    @Getter
     protected char symbol;
+    @Getter
     protected int moveCount;
-
-    public char getSymbol() {
-        return symbol; // Currently is symbol for console but will need to be switched to png
-    }
 
     public Piece(String pieceName, boolean isWhite, PieceType type, Square square, char symbol) {
         this.isWhite = isWhite;
@@ -51,8 +52,6 @@ public abstract class Piece {
             moveCount--;
         }
     }
-
-    public int getMoveCount(){return moveCount;}
 
     public boolean hasMoved() {
         return moveCount > 0;

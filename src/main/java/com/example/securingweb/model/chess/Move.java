@@ -1,12 +1,18 @@
 package com.example.securingweb.model.chess;
 
+import lombok.Getter;
 
 public class Move {
     // Handles movement, en passant, castling, promotions
+    @Getter
     private final Square start;
+    @Getter
     private final Square end;
+    @Getter
     private final Piece movedPiece;
+    @Getter
     private final Piece capturedPiece;
+    @Getter
     private final String notation;
     private final MoveType moveType;
 
@@ -18,26 +24,6 @@ public class Move {
         this.capturedPiece = capturedPiece;
         this.moveType = moveType;
         this.notation = makeNotation();
-    }
-
-    public Square getStart() {
-        return start;
-    }
-
-    public Square getEnd() {
-        return end;
-    }
-
-    public Piece getMovedPiece() {
-        return movedPiece;
-    }
-
-    public Piece getCapturedPiece() {
-        return capturedPiece;
-    }
-
-    public String getNotation() {
-        return notation;
     }
 
     private String makeNotation() {

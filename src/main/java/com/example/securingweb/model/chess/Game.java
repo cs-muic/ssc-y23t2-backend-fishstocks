@@ -9,6 +9,7 @@ import java.util.Scanner;
 // Interact with users input + check for valid moves and observers
 
 public class Game implements GameSubject {
+    private String gameID;
     private List<GameObserver> observers = new ArrayList<>();
     private GameState gameState;
     public Board board;

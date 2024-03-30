@@ -1,18 +1,14 @@
 package com.example.securingweb.model.chess;
 
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class King extends Piece {
-    private boolean hasMoved;
-    private boolean canCastleQS;
-    private boolean canCastleKS;
 
     public King(String name, boolean isWhite, Square square) {
         super(name, isWhite, PieceType.KING, square, isWhite ? 'K' : 'k');
-        hasMoved = false;
-        canCastleKS = false; // will need to check in game rules
-        canCastleQS = false;
     }
 
     @Override
@@ -35,13 +31,5 @@ public class King extends Piece {
         return moves;
     }
 
-
-    public void setCanCastleQS(boolean canCastle) {
-        this.canCastleQS = canCastle;
-    }
-
-    public void setCanCastleKS(boolean canCastle) {
-        this.canCastleKS = canCastle;
-    }
 
 }

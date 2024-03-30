@@ -2,8 +2,11 @@ package com.example.securingweb.model.chess;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Data;
 
+@Data
 public class Player implements GameObserver {
+    private String Login;
     private boolean isWhite; // Player's color
     private List<Piece> capturedPieces; // Pieces this player has currently captured
     private List<Square> occupiedSquares;
