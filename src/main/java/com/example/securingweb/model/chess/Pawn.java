@@ -2,6 +2,7 @@ package com.example.securingweb.model.chess;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class Pawn extends Piece {
     protected boolean hasMoved;
@@ -20,8 +21,9 @@ public class Pawn extends Piece {
         // Single square forward
         int newRow = square.getRow() + direction;
         if (board.isPositionValid(newRow, square.getCol()) && !board.getSquare(newRow, square.getCol()).isOccupied()) {
+            boolean isPromotion = newRow == 0 || newRow == 7;
             moves.add(new Move(this.square, board.getSquare(newRow, square.getCol()), this, null, false, false,
-                    null)); // No capture, not en passant, not a promotion
+                    isPromotion));
 
             // Double square forward from start
             if (square.getRow() == startRow) {
@@ -29,7 +31,7 @@ public class Pawn extends Piece {
                 if (board.isPositionValid(doubleForwardRow, square.getCol())
                         && !board.getSquare(doubleForwardRow, square.getCol()).isOccupied()) {
                     moves.add(new Move(this.square, board.getSquare(doubleForwardRow, square.getCol()), this, null,
-                            false, false, null));
+                            false, false, isPromotion));
                 }
             }
         }
@@ -40,15 +42,15 @@ public class Pawn extends Piece {
             if (board.isPositionValid(newRow, captureCol)) {
                 Square targetSquare = board.getSquare(newRow, captureCol);
                 if (targetSquare.isOccupied() && targetSquare.getPiece().isWhite() != this.isWhite()) {
+                    boolean isPromotion = newRow == 0 || newRow == 7;
                     moves.add(new Move(this.square, targetSquare, this, targetSquare.getPiece(), false, false,
-                            null));
+                            isPromotion));
                 }
             }
         }
 
-        // add en passant, promo later
-
         return moves;
     }
+
 
 }

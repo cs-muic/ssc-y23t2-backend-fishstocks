@@ -28,10 +28,10 @@ public class Queen extends Piece {
                     break;
                 Square targetSquare = board.getSquare(newRow, newCol);
                 if (!targetSquare.isOccupied()) {
-                    moves.add(new Move(this.square, targetSquare, this, null, false, false, null)); // No capture
+                    moves.add(new Move(this.square, targetSquare, this, null, false, false, false)); // No capture
                 } else {
                     if (targetSquare.getPiece().isWhite() != this.isWhite()) {
-                        moves.add(new Move(this.square, targetSquare, this, targetSquare.getPiece(), false, false, null)); // Capture
+                        moves.add(new Move(this.square, targetSquare, this, targetSquare.getPiece(), false, false, false)); // Capture
                     }
                     break;
                 }

@@ -57,27 +57,21 @@ public class Game implements GameSubject {
      * @param move
      */
     private void executeMove(Move move) {
-        Scanner scanner = new Scanner(System.in);
 
         // Handle special moves -> castling, en passant, and promotion
         if (move.isCastle()) {
             board.doCastle(move.getMovedPiece(), move.getCapturedPiece());
         } else if (move.isEnPassantCapture()) {
             board.doEnPassant(move.getMovedPiece(), move.getCapturedPiece());
-        } else if (move.getPromotionType() != null) {
+        } else if (move.isPromotion()) {
             // Handle pawn promotion
-            System.out.println("What piece would you like? [q,r,b,n] ");
-            String input = scanner.nextLine();
-            PieceType type = PieceFactory.getPieceTypeFromInput(input);
-            String name = board.generatePieceName(type, gameState.getCurrentPlayer().isWhite());
-            Piece newPiece = PieceFactory.createPiece(name, type, gameState.getCurrentPlayer().isWhite(), move.getEnd());
-            board.doPromotions(move.getMovedPiece(), newPiece);
+            board.promotePawn(move);
         } else {
             // Standard move
             Piece capturedPiece = move.getCapturedPiece();
             if (capturedPiece != null) {
-                gameState.getCurrentPlayer().addCaptured(capturedPiece);
-                board.updateMap(false, capturedPiece);
+                board.handleCapturedPiece(gameState, capturedPiece);
+
             }
             board.movePiece(move.getStart(), move.getEnd());
         }
@@ -177,6 +171,9 @@ public class Game implements GameSubject {
 
             // Update the game state after the move
             updateGameState();
+            System.out.println("Check: "+gameState.isCheck());
+            System.out.println("Checkmate: "+gameState.isCheckmate());
+            System.out.println("Stalemate: "+gameState.isStalemate());
         }
 
         board.printBoard();

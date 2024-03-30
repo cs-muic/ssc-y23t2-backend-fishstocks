@@ -1,8 +1,12 @@
 package com.example.securingweb.model.chess;
 
+import java.util.Scanner;
+
 public class PieceFactory {
 
-    public static Piece createPiece(String name, PieceType pieceType, boolean isWhite, Square location) {
+
+    public static Piece createPiece(Board board, PieceType pieceType, boolean isWhite, Square location) {
+        String name = generatePieceName(board, pieceType, isWhite);
         switch (pieceType) {
             case PAWN:
                 return new Pawn(name, isWhite, location);
@@ -43,6 +47,23 @@ public class PieceFactory {
             default:
                 throw new IllegalArgumentException("Invalid piece type: " + input);
         }
+    }
+    private static String generatePieceName(Board board, PieceType type, boolean isWhite) {
+        String color = isWhite ? "w" : "b";
+        int count = board.getPieceMap().get(type).get(isWhite).size() + 1;
+        return type.toString().toLowerCase() + "_" + color + "_" + count;
+    }
+
+    private static PieceType getPromotionPieceType() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("What piece would you like? [q,r,b,n] ");
+        String input = scanner.nextLine();
+        return PieceFactory.getPieceTypeFromInput(input);
+    }
+
+    public static Piece createPromotedPiece(Board board, boolean isWhite, Square location) {
+        PieceType promotionType = getPromotionPieceType();
+        return createPiece(board, promotionType, isWhite, location);
     }
 
 }

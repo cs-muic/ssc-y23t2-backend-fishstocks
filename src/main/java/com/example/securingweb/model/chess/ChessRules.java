@@ -100,7 +100,7 @@ public class ChessRules {
         // These special types have already been checked
         if (move.isCastle()
                 || move.isEnPassantCapture()
-                || move.getPromotionType() != null){
+                || move.isPromotion()){
             return true;
         }
 
@@ -211,7 +211,7 @@ public class ChessRules {
             int rookColumn = isKingSide ? 7 : 0; // Rook is at column 7 (H) if kingside, 0 (A) if queenside
             Piece king = board.getKingSquare(piece.isWhite()).getPiece();
             Piece rook = board.getSquare(row, rookColumn).getPiece(); // Get the correct rook based on the castle side
-            legalMoves.add(new Move(board.getKingSquare(piece.isWhite()), board.getSquare(row, kingColumn), king, rook, false, true, null));
+            legalMoves.add(new Move(board.getKingSquare(piece.isWhite()), board.getSquare(row, kingColumn), king, rook, false, true, false));
         }
     }
 

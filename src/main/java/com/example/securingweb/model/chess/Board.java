@@ -3,10 +3,20 @@ package com.example.securingweb.model.chess;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 public class Board {
     private final Square[][] board;
     private final Map<PieceType, Map<Boolean, HashMap<String, Piece>>> pieceMap;
+
+    public Square[][] getBoard() {
+        return board;
+    }
+
+    public Map<PieceType, Map<Boolean, HashMap<String, Piece>>> getPieceMap() {
+        return pieceMap;
+    }
+
     /**
      * Initial board setup: Squares + Piece
      * Pieces are also put into a hashmap for easy access
@@ -61,9 +71,9 @@ public class Board {
     }
 
     private void placePiece(PieceType type, boolean isWhite, int row, int col) {
-        String name = generatePieceName(type, isWhite);
-        Piece piece = PieceFactory.createPiece(name, type, isWhite, board[row][col]);
+        Piece piece = PieceFactory.createPiece(this, type, isWhite, board[row][col]);
         board[row][col].setPiece(piece);
+        String name = piece.getName();
         pieceMap.get(type).get(isWhite).put(name, piece);
     }
 
@@ -225,15 +235,36 @@ public class Board {
         movePiece(kingStart, kingEnd);
     }
 
-    public void doPromotions(Piece pawnPiece, Piece promotedPiece) {
-        // Remove the pawn from the board and the pieceMap
-        updateMap(false, pawnPiece);
-        Square loc = pawnPiece.getLocation();
-        loc.emptySquare();
+    public void promotePawn(Move move) {
+        // Get the location where the pawn should be promoted
+        Square location = move.getEnd();
 
-        // Add the promoted piece to the board and the pieceMap
-        promotedPiece.updateSquare(loc);
-        loc.setPiece(promotedPiece);
+        // Store the pawn's original location
+        Square originalLocation = move.getMovedPiece().getLocation();
+
+        // Remove the pawn from the board and the pieceMap
+        updateMap(false, move.getMovedPiece());
+
+        if(move.getCapturedPiece() != null){
+            // need this for when the pawn captures AND promotes at the same time
+            updateMap(false, move.getCapturedPiece()); // remove captured piece from hashmap
+            move.getCapturedPiece().getLocation().emptySquare(); // empty the square with wtv piece we just captured
+        }
+
+        // Empty the square where the pawn was
+        originalLocation.emptySquare();
+
+        // Empty the square where the pawn should be promoted
+        location.emptySquare();
+
+        // Create promoted piece
+        Piece promotedPiece = PieceFactory.createPromotedPiece(this, move.getMovedPiece().isWhite(), location);
+
+        // Update the square and the piece with the new location
+        promotedPiece.updateSquare(location);
+        location.setPiece(promotedPiece);
+
+        // Add the promoted piece to the pieceMap
         updateMap(true, promotedPiece);
     }
 
@@ -253,10 +284,9 @@ public class Board {
         }
     }
 
-    public String generatePieceName(PieceType type, boolean isWhite) {
-        String color = isWhite ? "w" : "b";
-        int count = pieceMap.get(type).get(isWhite).size() + 1;
-        return type.toString().toLowerCase() + "_" + color + "_" + count;
-    }
 
+    public void handleCapturedPiece(GameState gameState, Piece capturedPiece) {
+        gameState.getCurrentPlayer().addCaptured(capturedPiece);
+        updateMap(false, capturedPiece);
+    }
 }

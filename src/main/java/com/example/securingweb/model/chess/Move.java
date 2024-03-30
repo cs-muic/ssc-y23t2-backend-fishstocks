@@ -10,17 +10,17 @@ public class Move {
     private final String notation;
     private final boolean isEnPassantCapture;
     private final boolean isCastle;
-    private final PieceType promotionType;
+    private final boolean isPromotion;
 
     public Move(Square start, Square end, Piece movedPiece, Piece capturedPiece, boolean isEnPassantCapture,
-            boolean isCastle, PieceType promotionType) {
+            boolean isCastle, boolean isPromotion) {
         this.start = start;
         this.end = end;
         this.movedPiece = movedPiece;
         this.capturedPiece = capturedPiece;
         this.isEnPassantCapture = isEnPassantCapture;
         this.isCastle = isCastle;
-        this.promotionType = promotionType;
+        this.isPromotion = isPromotion;
         this.notation = makeNotation();
 
     }
@@ -67,7 +67,7 @@ public class Move {
     }
 
 
-    public PieceType getPromotionType() {return promotionType;}
+    public boolean isPromotion() {return isPromotion;}
 
 
 }

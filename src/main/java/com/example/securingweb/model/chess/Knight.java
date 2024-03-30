@@ -21,7 +21,7 @@ public class Knight extends Piece {
                 Square targetSquare = board.getSquare(newRow, newCol);
                 if (!targetSquare.isOccupied() || targetSquare.getPiece().isWhite() != this.isWhite()) {
                     moves.add(new Move(this.square, targetSquare, this, targetSquare.getPiece(), false, false,
-                            null)); // Possible capture
+                            false)); // Possible capture
                 }
             }
         }

@@ -28,7 +28,7 @@ public class King extends Piece {
                 if (targetSquare != null
                         && (!targetSquare.isOccupied() || targetSquare.getPiece().isWhite() != this.isWhite())) {
                     moves.add(new Move(this.square, targetSquare, this, targetSquare.getPiece(), false, false,
-                            null));
+                            false));
                 }
             }
         }
