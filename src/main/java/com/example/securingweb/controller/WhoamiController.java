@@ -4,6 +4,7 @@ import com.example.securingweb.dto.WhoamiDTO;
 import com.example.securingweb.repo.UserRepository;
 import com.example.securingweb.user.Customer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,22 +26,23 @@ public class WhoamiController {
             String encode = encoder.encode("admin");
             userRepository.save(new Customer(0L,"admin",encode));
         }
+        WhoamiDTO here;
         try{
-            Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            if (principal != null && principal instanceof User){
-                User user = (User) principal;
-                userRepository.findByUsername(user.getUsername());
-                return WhoamiDTO.builder()
-                        .loggedIn(true)
-                        .name(user.getUsername())
-                        .role(user.getAuthorities())
-                        .username(user.getUsername())
-                        .build();
-            }
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String name = auth.getName();
+            Customer u = userRepository.findByUsername(name).get();
+            //System.out.println("have3");
+            here = WhoamiDTO.builder()
+                    .loggedIn(true)
+                    .name(u.getUsername())
+                    .role(u.getAuthorities())
+                    .username(u.getUsername())
+                    .build();
 
         } catch (Exception ignored) {
+            here = WhoamiDTO.builder().loggedIn(false).build();
         }
-        return WhoamiDTO.builder().build();
+        return here;
     }
 
 }
