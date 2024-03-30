@@ -11,6 +11,12 @@ public class Player implements GameObserver {
     private List<Piece> capturedPieces; // Pieces this player has currently captured
     private List<Square> occupiedSquares;
 
+    // Default constructor for JSON deserialization and other uses
+    public Player() {
+        this.capturedPieces = new ArrayList<>();
+        this.occupiedSquares = new ArrayList<>();
+    }
+
     public Player(boolean isWhite, Board board) {
         this.isWhite = isWhite;
         this.capturedPieces = new ArrayList<>();
@@ -19,7 +25,7 @@ public class Player implements GameObserver {
 
     }
 
-    private void setupOccupiedSquares(Boolean isWhite, Board board) {
+    public void setupOccupiedSquares(Boolean isWhite, Board board) {
         int start = isWhite ? 6 : 0;
         int end = isWhite ? 7 : 1;
 
@@ -36,10 +42,6 @@ public class Player implements GameObserver {
 
     public boolean isWhite() {
         return isWhite;
-    }
-
-    public List<Square> getSquares() {
-        return occupiedSquares;
     }
 
     public void updateSquares(Square start, Square end) {
