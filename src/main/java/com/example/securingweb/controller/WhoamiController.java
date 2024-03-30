@@ -1,14 +1,19 @@
 package com.example.securingweb.controller;
 
+import com.example.securingweb.dto.SimpleResponseDTO;
 import com.example.securingweb.dto.WhoamiDTO;
 import com.example.securingweb.repo.UserRepository;
 import com.example.securingweb.user.Customer;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -43,6 +48,35 @@ public class WhoamiController {
             here = WhoamiDTO.builder().loggedIn(false).build();
         }
         return here;
+    }
+
+    @PostMapping("/api/register")
+    public SimpleResponseDTO register(HttpServletRequest request){
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+        if (userRepository.findByUsername(username).isEmpty()) {
+            String encode = encoder.encode(password);
+            userRepository.save(new Customer(0L, username, encode));
+            try {
+                //Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+                request.login(username, password);
+                return SimpleResponseDTO.builder()
+                        .success(true)
+                        .message("you are log in successfully")
+                        .build();
+            } catch (ServletException e) {
+                return SimpleResponseDTO.builder()
+                        .success(false)
+                        .message(e.getMessage())
+                        .build();
+            }
+        }else{
+            return SimpleResponseDTO.builder()
+                    .success(false)
+                    .message("already exist")
+                    .build();
+        }
+
     }
 
 }
