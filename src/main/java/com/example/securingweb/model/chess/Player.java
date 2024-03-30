@@ -2,30 +2,27 @@ package com.example.securingweb.model.chess;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 
 @Data
 public class Player implements GameObserver {
-    private String Login;
+    private String login;
     private boolean isWhite; // Player's color
+    @JsonManagedReference
     private List<Piece> capturedPieces; // Pieces this player has currently captured
+    @JsonManagedReference
     private List<Square> occupiedSquares;
 
-    // Default constructor for JSON deserialization and other uses
-    public Player() {
+    public Player(String login) {
+        this.login = login;
         this.capturedPieces = new ArrayList<>();
         this.occupiedSquares = new ArrayList<>();
     }
 
-    public Player(boolean isWhite, Board board) {
-        this.isWhite = isWhite;
-        this.capturedPieces = new ArrayList<>();
-        this.occupiedSquares = new ArrayList<>();
-        setupOccupiedSquares(isWhite, board);
+    public void setupOccupiedSquares(boolean isWhite, Board board) {
 
-    }
-
-    public void setupOccupiedSquares(Boolean isWhite, Board board) {
         int start = isWhite ? 6 : 0;
         int end = isWhite ? 7 : 1;
 

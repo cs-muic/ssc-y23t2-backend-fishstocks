@@ -25,14 +25,18 @@ public class GameService {
 
         GameHistory gameHistory = new GameHistory();
         gameHistory.setGameID(gameId);
+        game.setPlayer1(player1);
+        game.setGameState(new GameState(player1));
+
 
         Board board = new Board();
         game.setBoard(board);
 
-        game.setPlayer1(player1);
-        player1.setupOccupiedSquares(player1.isWhite(), board);
+        game.getPlayer1().setWhite(true);
+        game.getPlayer1().setupOccupiedSquares(player1.isWhite(), board);
 
-        game.setGameState(new GameState(player1));
+
+        game.setGameState(new GameState(game.getPlayer1()));
         game.setGameHistory(gameHistory);
         game.setRules(new ChessRules(board, gameHistory));
         game.setStatus(GameStatus.NEW);
@@ -112,6 +116,7 @@ public class GameService {
                 move.isCastle() || move.isEnPassantCapture() || move.isPromotion()
         )).collect(Collectors.toList());
     }
+
 
 }
 

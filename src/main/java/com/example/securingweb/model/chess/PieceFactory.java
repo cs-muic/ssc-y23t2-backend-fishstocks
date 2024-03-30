@@ -5,21 +5,20 @@ import java.util.Scanner;
 public class PieceFactory {
 
 
-    public static Piece createPiece(Board board, PieceType pieceType, boolean isWhite, Square location) {
-        String name = generatePieceName(board, pieceType, isWhite);
+    public static Piece createPiece(Board board, PieceType pieceType, boolean isWhite, int row, int col) {
         switch (pieceType) {
             case PAWN:
-                return new Pawn(name, isWhite, location);
+                return new Pawn(isWhite, row, col);
             case ROOK:
-                return new Rook(name, isWhite, location);
+                return new Rook(isWhite, row, col);
             case KNIGHT:
-                return new Knight(name, isWhite, location);
+                return new Knight(isWhite, row, col);
             case BISHOP:
-                return new Bishop(name, isWhite, location);
+                return new Bishop(isWhite, row, col);
             case QUEEN:
-                return new Queen(name, isWhite, location);
+                return new Queen(isWhite, row, col);
             case KING:
-                return new King(name, isWhite, location);
+                return new King(isWhite, row, col);
             default:
                 throw new IllegalArgumentException("Invalid piece type: " + pieceType);
         }
@@ -48,11 +47,6 @@ public class PieceFactory {
                 throw new IllegalArgumentException("Invalid piece type: " + input);
         }
     }
-    private static String generatePieceName(Board board, PieceType type, boolean isWhite) {
-        String color = isWhite ? "w" : "b";
-        int count = board.getPieceMap().get(type).get(isWhite).size() + 1;
-        return type.toString().toLowerCase() + "_" + color + "_" + count;
-    }
 
     private static PieceType getPromotionPieceType() {
         Scanner scanner = new Scanner(System.in);
@@ -61,9 +55,9 @@ public class PieceFactory {
         return PieceFactory.getPieceTypeFromInput(input);
     }
 
-    public static Piece createPromotedPiece(Board board, boolean isWhite, Square location) {
+    public static Piece createPromotedPiece(Board board, boolean isWhite, int row, int col) {
         PieceType promotionType = getPromotionPieceType();
-        return createPiece(board, promotionType, isWhite, location);
+        return createPiece(board, promotionType, isWhite, row, col);
     }
 
 }

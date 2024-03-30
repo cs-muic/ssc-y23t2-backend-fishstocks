@@ -1,8 +1,13 @@
 package com.example.securingweb.model.chess;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
+@Setter
 public class ChessRules {
     private Board board;
     private GameHistory gameHistory;
@@ -128,10 +133,7 @@ public class ChessRules {
         }
         // Check if the rook has moved
         Piece piece = board.getSquare(king.isWhite() ? 7 : 0, kingSide ? 7 : 0).getPiece();
-        System.out.println("DEBUG: " + piece.getLocation().getRow() +", "+ piece.getLocation().getCol());
-        if (piece == null || !(piece instanceof Rook) || piece.hasMoved()) {
-            System.out.println("Rook has already moved");
-            System.out.println("Rook location:"+piece.getLocation().getRow()+","+piece.getLocation().getCol());
+        if (!(piece instanceof Rook) || piece.hasMoved()) {
             return false;
         }
         return true;
@@ -183,8 +185,8 @@ public class ChessRules {
         }
 
         int direction = piece.isWhite() ? -1 : 1;
-        int startRow = piece.getLocation().getRow();
-        int startCol = piece.getLocation().getCol();
+        int startRow = piece.getRow();
+        int startCol = piece.getCol();
 
         // Check the squares diagonally in front of the pawn
         for (int colOffset : new int[]{-1, 1}) {
