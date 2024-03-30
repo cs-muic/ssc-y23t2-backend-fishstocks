@@ -3,7 +3,6 @@ package com.example.securingweb.model.chess;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 
 public class Board {
     private final Square[][] board;
