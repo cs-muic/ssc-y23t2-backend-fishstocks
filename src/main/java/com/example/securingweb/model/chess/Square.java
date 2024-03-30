@@ -1,14 +1,16 @@
 package com.example.securingweb.model.chess;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
 import lombok.Setter;
 
+@Getter
+@Setter
+
 public class Square {
     private String name;
-    @Getter
-    @Setter
     private Piece piece;
-    @Getter
     private final int row, col;
     private boolean isWhite;
 

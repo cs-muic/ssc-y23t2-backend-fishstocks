@@ -5,8 +5,8 @@ import java.util.List;
 
 public class Rook extends Piece {
 
-    public Rook(String name, boolean isWhite, Square square) {
-        super(name, isWhite, PieceType.ROOK, square, isWhite ? 'R' : 'r');
+    public Rook(boolean isWhite, int row, int col) {
+        super(isWhite, PieceType.ROOK, row, col, isWhite ? 'R' : 'r');
     }
 
     @Override
@@ -15,8 +15,8 @@ public class Rook extends Piece {
         int[][] directions = { { 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 } }; // Up, Down, Left, Right
 
         for (int[] dir : directions) {
-            int newRow = square.getRow();
-            int newCol = square.getCol();
+            int newRow = row;
+            int newCol = col;
             while (true) {
                 newRow += dir[0];
                 newCol += dir[1];
@@ -24,10 +24,10 @@ public class Rook extends Piece {
                     break;
                 Square targetSquare = board.getSquare(newRow, newCol);
                 if (!targetSquare.isOccupied()) {
-                    moves.add(new Move(this.square, targetSquare, this, null, MoveType.REGULAR)); // No capture
+                    moves.add(new Move(board.getSquare(row, col), targetSquare, this, null, MoveType.REGULAR)); // No capture
                 } else {
                     if (targetSquare.getPiece().isWhite() != this.isWhite()) {
-                        moves.add(new Move(this.square, targetSquare, this, targetSquare.getPiece(), MoveType.REGULAR)); // Capture
+                        moves.add(new Move(board.getSquare(row, col), targetSquare, this, targetSquare.getPiece(), MoveType.REGULAR)); // Capture
                     }
                     break; // Stop moving in this direction after a capture or hitting a friendly piece
                 }

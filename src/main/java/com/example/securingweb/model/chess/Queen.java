@@ -5,8 +5,8 @@ import java.util.List;
 
 public class Queen extends Piece {
 
-    public Queen(String name, boolean isWhite, Square square) {
-        super(name, isWhite, PieceType.QUEEN, square, isWhite ? 'Q' : 'q');
+    public Queen(boolean isWhite, int row, int col) {
+        super(isWhite, PieceType.QUEEN, row, col, isWhite ? 'Q' : 'q');
     }
 
     @Override
@@ -16,8 +16,8 @@ public class Queen extends Piece {
 
 
         for (int[] dir : directions) {
-            int newRow = square.getRow();
-            int newCol = square.getCol();
+            int newRow = row;
+            int newCol = col;
             while (true) {
                 newRow += dir[0];
                 newCol += dir[1];
@@ -25,10 +25,10 @@ public class Queen extends Piece {
                     break;
                 Square targetSquare = board.getSquare(newRow, newCol);
                 if (!targetSquare.isOccupied()) {
-                    moves.add(new Move(this.square, targetSquare, this, null, MoveType.REGULAR)); // No capture
+                    moves.add(new Move(board.getSquare(row, col), targetSquare, this, null, MoveType.REGULAR)); // No capture
                 } else {
                     if (targetSquare.getPiece().isWhite() != this.isWhite()) {
-                        moves.add(new Move(this.square, targetSquare, this, targetSquare.getPiece(), MoveType.REGULAR)); // Capture
+                        moves.add(new Move(board.getSquare(row, col), targetSquare, this, targetSquare.getPiece(), MoveType.REGULAR)); // Capture
                     }
                     break;
                 }

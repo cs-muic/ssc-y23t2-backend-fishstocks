@@ -1,21 +1,23 @@
 package com.example.securingweb.model.chess;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 public class GameHistory {
+    @Setter
+    private String gameID;
     private List<Move> gameHistory;
     private List<Move> playerWhiteHistory;
     private List<Move> playerBlackHistory;
 
-    GameHistory() {
+    public GameHistory() {
         gameHistory = new ArrayList<>();
         playerWhiteHistory = new ArrayList<>();
         playerBlackHistory = new ArrayList<>();
-    }
-
-    public List<Move> getGameHistory() {
-        return gameHistory;
     }
 
     private List<Move> getPlayerHistory(Boolean playerIsWhite) {

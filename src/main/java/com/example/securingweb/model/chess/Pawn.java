@@ -5,11 +5,9 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Pawn extends Piece {
-    protected boolean hasMoved;
 
-    public Pawn(String name, boolean isWhite, Square square) {
-        super(name, isWhite, PieceType.PAWN, square, isWhite ? 'P' : 'p');
-        hasMoved = false;
+    public Pawn(boolean isWhite, int row, int col) {
+        super(isWhite, PieceType.PAWN, row, col, isWhite ? 'P' : 'p');
     }
 
     @Override
@@ -19,29 +17,29 @@ public class Pawn extends Piece {
         int startRow = this.isWhite() ? 6 : 1;
 
         // Single square forward
-        int newRow = square.getRow() + direction;
-        if (board.isPositionValid(newRow, square.getCol()) && !board.getSquare(newRow, square.getCol()).isOccupied()) {
+        int newRow = row + direction;
+        if (board.isPositionValid(newRow, col) && !board.getSquare(newRow, col).isOccupied()) {
             boolean isPromotion = newRow == 0 || newRow == 7;
-            moves.add(new Move(this.square, board.getSquare(newRow, square.getCol()), this, null, isPromotion? MoveType.PROMOTION:MoveType.REGULAR));
+            moves.add(new Move(board.getSquare(row, col), board.getSquare(newRow, col), this, null, isPromotion? MoveType.PROMOTION:MoveType.REGULAR));
 
             // Double square forward from start
-            if (square.getRow() == startRow) {
+            if (row == startRow) {
                 int doubleForwardRow = newRow + direction;
-                if (board.isPositionValid(doubleForwardRow, square.getCol())
-                        && !board.getSquare(doubleForwardRow, square.getCol()).isOccupied()) {
-                    moves.add(new Move(this.square, board.getSquare(doubleForwardRow, square.getCol()), this, null, MoveType.REGULAR));
+                if (board.isPositionValid(doubleForwardRow, col)
+                        && !board.getSquare(doubleForwardRow, col).isOccupied()) {
+                    moves.add(new Move(board.getSquare(row,col), board.getSquare(doubleForwardRow, col), this, null, MoveType.REGULAR));
                 }
             }
         }
 
         // Capturing moves
-        int[] captureCols = { square.getCol() - 1, square.getCol() + 1 };
+        int[] captureCols = { col - 1, col + 1 };
         for (int captureCol : captureCols) {
             if (board.isPositionValid(newRow, captureCol)) {
                 Square targetSquare = board.getSquare(newRow, captureCol);
                 if (targetSquare.isOccupied() && targetSquare.getPiece().isWhite() != this.isWhite()) {
                     boolean isPromotion = newRow == 0 || newRow == 7;
-                    moves.add(new Move(this.square, targetSquare, this, targetSquare.getPiece(),
+                    moves.add(new Move(board.getSquare(row, col), targetSquare, this, targetSquare.getPiece(),
                             isPromotion? MoveType.PROMOTION:MoveType.REGULAR));
                 }
             }

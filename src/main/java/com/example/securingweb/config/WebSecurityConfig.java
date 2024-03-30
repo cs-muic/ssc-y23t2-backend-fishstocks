@@ -58,16 +58,20 @@ public class WebSecurityConfig {
 //				)
 //				.httpBasic(withDefaults()) // Enables HTTP Basic Authentication with default settings.
 //				.logout(l -> l.deleteCookies("JSESSIONID"));; // Configures session management to be stateless.
-		http.csrf(AbstractHttpConfigurer::disable)
-				.authorizeHttpRequests( auth -> {
-					auth.requestMatchers("/","/api/login","/api/logout","/api/whoami").permitAll();
-					auth.requestMatchers(HttpMethod.OPTIONS,"/**").permitAll();
-				});
-		http.exceptionHandling(auth -> auth.authenticationEntryPoint(new JsonFobiddenEntryPoint()));
-		http.authorizeHttpRequests( auth -> auth.requestMatchers("/**").permitAll());
+
+//		http.csrf(AbstractHttpConfigurer::disable)
+//				.authorizeHttpRequests( auth -> {
+//					auth.requestMatchers("/","/api/login","/api/logout","/api/whoami").permitAll();
+//					auth.requestMatchers(HttpMethod.OPTIONS,"/**").permitAll();
+//				});
+		http.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests( req -> req.anyRequest().permitAll()).httpBasic(Customizer.withDefaults());
+
+//		http.exceptionHandling(auth -> auth.authenticationEntryPoint(new JsonFobiddenEntryPoint()));
+//		http.authorizeHttpRequests( auth -> auth.requestMatchers("/**").permitAll());
 		return http.build(); // Builds and returns the SecurityFilterChain.
 
 	}
+
 
 	@Bean
 	public AuthenticationManager authenticationManager(UserDetailsService detailsService){
