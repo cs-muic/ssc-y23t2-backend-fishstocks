@@ -22,16 +22,14 @@ public class Pawn extends Piece {
         int newRow = square.getRow() + direction;
         if (board.isPositionValid(newRow, square.getCol()) && !board.getSquare(newRow, square.getCol()).isOccupied()) {
             boolean isPromotion = newRow == 0 || newRow == 7;
-            moves.add(new Move(this.square, board.getSquare(newRow, square.getCol()), this, null, false, false,
-                    isPromotion));
+            moves.add(new Move(this.square, board.getSquare(newRow, square.getCol()), this, null, isPromotion? MoveType.PROMOTION:MoveType.REGULAR));
 
             // Double square forward from start
             if (square.getRow() == startRow) {
                 int doubleForwardRow = newRow + direction;
                 if (board.isPositionValid(doubleForwardRow, square.getCol())
                         && !board.getSquare(doubleForwardRow, square.getCol()).isOccupied()) {
-                    moves.add(new Move(this.square, board.getSquare(doubleForwardRow, square.getCol()), this, null,
-                            false, false, isPromotion));
+                    moves.add(new Move(this.square, board.getSquare(doubleForwardRow, square.getCol()), this, null, MoveType.REGULAR));
                 }
             }
         }
@@ -43,8 +41,8 @@ public class Pawn extends Piece {
                 Square targetSquare = board.getSquare(newRow, captureCol);
                 if (targetSquare.isOccupied() && targetSquare.getPiece().isWhite() != this.isWhite()) {
                     boolean isPromotion = newRow == 0 || newRow == 7;
-                    moves.add(new Move(this.square, targetSquare, this, targetSquare.getPiece(), false, false,
-                            isPromotion));
+                    moves.add(new Move(this.square, targetSquare, this, targetSquare.getPiece(),
+                            isPromotion? MoveType.PROMOTION:MoveType.REGULAR));
                 }
             }
         }

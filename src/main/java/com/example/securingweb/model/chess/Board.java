@@ -207,12 +207,25 @@ public class Board {
     public void doEnPassant(Piece attackingPawn, Piece targetPawn) {
         // Kills the target pawn so hashmap needs to be updated
         updateMap(false, targetPawn);
-        // Remove from the board
-        Square location = targetPawn.getLocation();
-        location.emptySquare();
-        // Move the attacking pawn to the target pawn's square
-        attackingPawn.updateSquare(location);
-        location.setPiece(attackingPawn);
+        // Get the location of the target pawn
+        Square targetLocation = targetPawn.getLocation();
+
+        // Determine the location where the attacking pawn should end up
+        Square newLocation;
+        if (attackingPawn.isWhite()) {
+            newLocation = getSquare(targetLocation.getRow() - 1, targetLocation.getCol());
+        } else {
+            newLocation = getSquare(targetLocation.getRow() + 1, targetLocation.getCol());
+        }
+
+        // Remove the target pawn from the board
+        targetLocation.emptySquare();
+        // Remove the attacking pawn from its old location
+        attackingPawn.getLocation().emptySquare();
+
+        // Move the attacking pawn to the new location
+        attackingPawn.updateSquare(newLocation);
+        newLocation.setPiece(attackingPawn);
     }
 
     public void doCastle(Piece king, Piece rook) {

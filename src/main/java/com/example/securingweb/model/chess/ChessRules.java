@@ -137,39 +137,6 @@ public class ChessRules {
         return true;
     }
 
-    private boolean canEnPassant(Board board, Square start, Square end) {
-        Piece piece = start.getPiece();
-        if (piece == null || piece.getType() != PieceType.PAWN) {
-            return false;
-        }
-        // Check if the move is a valid en passant move
-        int direction = piece.isWhite() ? -1 : 1;
-        if (end.getRow() == start.getRow() + direction && Math.abs(end.getCol() - start.getCol()) == 1) {
-            // Check if the adjacent square in the direction of the move contains an opponent's pawn
-            Piece adjacentPiece = board.getSquare(start.getRow(), end.getCol()).getPiece();
-            if (adjacentPiece != null && adjacentPiece.getType() == PieceType.PAWN && adjacentPiece.isWhite() != piece.isWhite()) {
-                // Check if the opponent's pawn just moved two squares forward
-                Move lastMove = gameHistory.getLastMove();
-                if (lastMove.getStart().getRow() == start.getRow() && lastMove.getEnd().getRow() == start.getRow() + 2 * direction && lastMove.getEnd().getCol() == end.getCol()) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Checks if piece can promote
-     * @param piece
-     * @return
-     */
-    private boolean canPromote(Piece piece) throws IllegalArgumentException {
-        if (piece.getType() != PieceType.PAWN) {
-            throw new IllegalArgumentException("Only pawns can be promoted");
-        }
-        return (piece.isWhite() && piece.getLocation().getRow() == 0) || (!piece.isWhite() && piece.getLocation().getRow() == 7);
-    }
-
 
     /**
      * This gets the raw moves from the piece class and filters out ones that don't abide to our chess rules
@@ -178,6 +145,7 @@ public class ChessRules {
      * @param board
      * @return Returns list of legal moves
      */
+
     public List<Move> getPossibleMoves(Piece piece, Board board) {
         List<Move> possibleMoves = piece.getUnfilteredMoves(board);
         List<Move> legalMoves = new ArrayList<>();
@@ -186,7 +154,11 @@ public class ChessRules {
         if (piece instanceof King) {
             addCastleMove(board, piece, true, legalMoves);
             addCastleMove(board, piece, false, legalMoves);
+        }
 
+        // If Pawn piece, check for en passant
+        if (piece instanceof Pawn) {
+            addEnPassantMove(board, piece, legalMoves);
         }
 
         for (Move move : possibleMoves) {
@@ -204,6 +176,36 @@ public class ChessRules {
         }
         return legalMoves;
     }
+
+    private void addEnPassantMove(Board board, Piece piece, List<Move> legalMoves) {
+        if (!(piece instanceof Pawn)) {
+            return;
+        }
+
+        int direction = piece.isWhite() ? -1 : 1;
+        int startRow = piece.getLocation().getRow();
+        int startCol = piece.getLocation().getCol();
+
+        // Check the squares diagonally in front of the pawn
+        for (int colOffset : new int[]{-1, 1}) {
+            int targetCol = startCol + colOffset;
+            if (targetCol < 0 || targetCol >= 8) {
+                continue;
+            }
+
+            Piece targetPiece = board.getSquare(startRow, targetCol).getPiece();
+            if (targetPiece != null && targetPiece.getType() == PieceType.PAWN && targetPiece.isWhite() != piece.isWhite()) {
+                // Check if the opponent's pawn just moved two squares forward
+                Move lastMove = gameHistory.getLastMove();
+                if (lastMove != null && lastMove.getMovedPiece() == targetPiece && Math.abs(lastMove.getStart().getRow() - lastMove.getEnd().getRow()) == 2) {
+                    // Add the en passant capture to the list of legal moves
+                    Square startSquare = board.getSquare(startRow, startCol);
+                    Square endSquare = board.getSquare(startRow + direction, targetCol);
+                    legalMoves.add(new Move(startSquare, endSquare, piece, targetPiece, MoveType.EN_PASSANT));
+                }
+            }
+        }
+    }
     private void addCastleMove(Board board, Piece piece, boolean isKingSide, List<Move> legalMoves) {
         if (canCastle(board, isKingSide, piece)) {
             int row = piece.isWhite() ? 7 : 0;
@@ -211,7 +213,7 @@ public class ChessRules {
             int rookColumn = isKingSide ? 7 : 0; // Rook is at column 7 (H) if kingside, 0 (A) if queenside
             Piece king = board.getKingSquare(piece.isWhite()).getPiece();
             Piece rook = board.getSquare(row, rookColumn).getPiece(); // Get the correct rook based on the castle side
-            legalMoves.add(new Move(board.getKingSquare(piece.isWhite()), board.getSquare(row, kingColumn), king, rook, false, true, false));
+            legalMoves.add(new Move(board.getKingSquare(piece.isWhite()), board.getSquare(row, kingColumn), king, rook, MoveType.CASTLE));
         }
     }
 

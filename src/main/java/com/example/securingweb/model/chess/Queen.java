@@ -12,11 +12,8 @@ public class Queen extends Piece {
     @Override
     public List<Move> getUnfilteredMoves(Board board) {
         List<Move> moves = new ArrayList<>();
-        int[][] directions = { { 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 }, { -1, -1 }, { -1, 1 }, { 1, -1 }, { 1, 1 } }; // Combining
-                                                                                                                       // Rook
-                                                                                                                       // and
-                                                                                                                       // Bishop
-                                                                                                                       // movements
+        int[][] directions = { { 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 }, { -1, -1 }, { -1, 1 }, { 1, -1 }, { 1, 1 } }; // Combining Rook and bishop movements
+
 
         for (int[] dir : directions) {
             int newRow = square.getRow();
@@ -28,10 +25,10 @@ public class Queen extends Piece {
                     break;
                 Square targetSquare = board.getSquare(newRow, newCol);
                 if (!targetSquare.isOccupied()) {
-                    moves.add(new Move(this.square, targetSquare, this, null, false, false, false)); // No capture
+                    moves.add(new Move(this.square, targetSquare, this, null, MoveType.REGULAR)); // No capture
                 } else {
                     if (targetSquare.getPiece().isWhite() != this.isWhite()) {
-                        moves.add(new Move(this.square, targetSquare, this, targetSquare.getPiece(), false, false, false)); // Capture
+                        moves.add(new Move(this.square, targetSquare, this, targetSquare.getPiece(), MoveType.REGULAR)); // Capture
                     }
                     break;
                 }

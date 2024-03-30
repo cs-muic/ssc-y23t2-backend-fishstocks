@@ -44,23 +44,6 @@ public class Player implements GameObserver {
         occupiedSquares.add(end);
     }
 
-    // @Override
-    // public void update(GameState state) {
-    // // Check if it's this player's turn
-    // if (state.isWhiteTurn() == this.isWhite) {
-    // System.out.println("It's your turn."); // change this to graphical version
-    // later
-    // }
-    //
-    // // React to check or checkmate status
-    // if (state.isCheck()) {
-    // System.out.println("You are in check.");
-    // }
-    // if (state.isCheckmate()) {
-    // System.out.println("Checkmate.");
-    // }
-    // }
-
     /**
      * Scans if player still has any legal moves
      *

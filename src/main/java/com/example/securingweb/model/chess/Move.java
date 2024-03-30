@@ -8,21 +8,16 @@ public class Move {
     private final Piece movedPiece;
     private final Piece capturedPiece;
     private final String notation;
-    private final boolean isEnPassantCapture;
-    private final boolean isCastle;
-    private final boolean isPromotion;
+    private final MoveType moveType;
 
-    public Move(Square start, Square end, Piece movedPiece, Piece capturedPiece, boolean isEnPassantCapture,
-            boolean isCastle, boolean isPromotion) {
+
+    public Move(Square start, Square end, Piece movedPiece, Piece capturedPiece, MoveType moveType) {
         this.start = start;
         this.end = end;
         this.movedPiece = movedPiece;
         this.capturedPiece = capturedPiece;
-        this.isEnPassantCapture = isEnPassantCapture;
-        this.isCastle = isCastle;
-        this.isPromotion = isPromotion;
+        this.moveType = moveType;
         this.notation = makeNotation();
-
     }
 
     public Square getStart() {
@@ -59,15 +54,15 @@ public class Move {
     }
 
     public boolean isEnPassantCapture() {
-        return isEnPassantCapture;
+        return moveType == MoveType.EN_PASSANT;
     }
 
     public boolean isCastle() {
-        return isCastle;
+        return moveType == MoveType.CASTLE;
     }
 
 
-    public boolean isPromotion() {return isPromotion;}
+    public boolean isPromotion() {return moveType == MoveType.PROMOTION;}
 
 
 }

@@ -23,11 +23,10 @@ public class Bishop extends Piece {
                     break;
                 Square targetSquare = board.getSquare(newRow, newCol);
                 if (!targetSquare.isOccupied()) {
-                    moves.add(new Move(this.square, targetSquare, this, null, false, false, false)); // No capture
+                    moves.add(new Move(this.square, targetSquare, this, null, MoveType.REGULAR)); // No capture
                 } else {
                     if (targetSquare.getPiece().isWhite() != this.isWhite()) {
-                        moves.add(new Move(this.square, targetSquare, this, targetSquare.getPiece(), false, false,
-                                false)); // Capture
+                        moves.add(new Move(this.square, targetSquare, this, targetSquare.getPiece(), MoveType.REGULAR)); // Capture
                     }
                     break;
                 }
