@@ -9,7 +9,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PieceDTO {
     String name;
-    boolean isWhite;
     int row;
     int col;
 }
