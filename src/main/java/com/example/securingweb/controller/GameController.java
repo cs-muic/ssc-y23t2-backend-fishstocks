@@ -1,6 +1,8 @@
 package com.example.securingweb.controller;
 import com.example.securingweb.dto.ConnectRequest;
-import com.example.securingweb.dto.SimplifiedMove;
+import com.example.securingweb.dto.GameDTO;
+import com.example.securingweb.dto.MoveDTO;
+import com.example.securingweb.dto.PieceDTO;
 import com.example.securingweb.exception.InvalidGameException;
 import com.example.securingweb.exception.InvalidParamException;
 import com.example.securingweb.exception.NotFoundException;
@@ -15,7 +17,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.List;
 
-
+@CrossOrigin(origins = "http://localhost:8080")
 @RestController
 @Slf4j
 @AllArgsConstructor
@@ -27,9 +29,9 @@ public class GameController {
 
 
     @PostMapping("/start")
-    public ResponseEntity<Game> start(Player player){
+    public ResponseEntity<GameDTO> start(Player player){
         log.info("start game request: {}");
-        return ResponseEntity.ok(gameService.createGame(player));
+        return ResponseEntity.ok(gameService.createGameDTO(player));
     }
 
     @PostMapping("/connect")
@@ -52,10 +54,10 @@ public class GameController {
         return ResponseEntity.ok(game);
     }
     @PostMapping("/{gameId}/getPossibleMoves")
-    public ResponseEntity<List<SimplifiedMove>> validMoves(@PathVariable String gameId, @RequestParam("row") int row, @RequestParam("col") int col) {
-        log.info("Valid moves request for game {}: square at row {}, col {}", gameId, row, col);
+    public ResponseEntity<List<MoveDTO>> validMoves(@PathVariable String gameId, @RequestBody PieceDTO piece) {
+        log.info("Valid moves request for game {}: square at row {}, col {}", gameId, piece.getRow(), piece.getCol());
         try {
-            List<SimplifiedMove> validMoves = gameService.getPossibleMoves(gameId, row, col);
+            List<MoveDTO> validMoves = gameService.getPossibleMoves(gameId, piece.getRow(), piece.getCol());
             return ResponseEntity.ok(validMoves);
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);

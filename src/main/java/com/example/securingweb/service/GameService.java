@@ -1,6 +1,6 @@
 package com.example.securingweb.service;
 
-import com.example.securingweb.dto.SimplifiedMove;
+import com.example.securingweb.dto.*;
 import com.example.securingweb.exception.InvalidGameException;
 import com.example.securingweb.exception.InvalidParamException;
 import com.example.securingweb.exception.NotFoundException;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class GameService {
-    public Game createGame(Player player1){
+    private Game createGame(Player player1){
         Game game = new Game();
         String gameId = UUID.randomUUID().toString();
         game.setGameId(gameId);
@@ -44,6 +44,70 @@ public class GameService {
 
         return game;
     }
+
+    public GameDTO createGameDTO(Player player1){
+        Game game = createGame(player1);
+
+        GameDTO gameDTO = new GameDTO();
+
+        gameDTO.setGameId(game.getGameId());
+        gameDTO.setGameHistory(game.getGameHistory());
+        gameDTO.setBoard(makeBoardDTO(game.getBoard()));
+        gameDTO.setBoard(makeBoardDTO(game.getBoard()));
+        gameDTO.setPlayer1(new PlayerDTO(player1.getLogin(), player1.getCapturedPieces()));
+
+        return gameDTO;
+    }
+
+
+    private BoardDTO makeBoardDTO(Board board) {
+        BoardDTO boardDTO = new BoardDTO();
+        boardDTO.setWhiteKing(new KingDTO(true, board.getKingSquare(true).getRow(), board.getKingSquare(true).getCol()));
+        boardDTO.setBlackKing(new KingDTO(false, board.getKingSquare(false).getRow(), board.getKingSquare(false).getCol()));
+        for(int row = 0; row < 8; row ++){
+            for (int col = 0; col < 8; col++){
+                Piece piece = board.getSquare(row, col).getPiece();
+                if (piece != null) {
+                    boardDTO.setPiece(new PieceDTO(makePieceName(piece), piece.isWhite(), row, col), row, col);
+                }
+                else boardDTO.setNull(row, col);
+            }
+        }
+        return boardDTO;
+    }
+
+    private String makePieceName(Piece piece) {
+        if (piece == null) return "";
+        switch(piece.getSymbol()) {
+            case 'b':
+                return "bishop-black";
+            case 'B':
+                return "bishop-white";
+            case 'k':
+                return "king-black";
+            case 'K':
+                return "king-white";
+            case 'q':
+                return "queen-black";
+            case 'Q':
+                return "queen-white";
+            case 'n':
+                return "knight-black";
+            case 'N':
+                return "knight-white";
+            case 'r':
+                return "rook-black";
+            case 'R':
+                return "rook-white";
+            case 'p':
+                return "pawn-black";
+            case 'P':
+                return "pawn-white";
+            default:
+                return "unknown";
+        }
+    }
+
 
     public Game connectToGame(Player player2, String gameId) throws InvalidParamException, InvalidGameException {
         if(GameStorage.getInstance().getGames().containsKey(gameId)){
@@ -100,7 +164,7 @@ public class GameService {
         return game;
     }
 
-    public List<SimplifiedMove> getPossibleMoves(String gameId, int row, int col) throws NotFoundException {
+    public List<MoveDTO> getPossibleMoves(String gameId, int row, int col) throws NotFoundException {
         Game game = GameStorage.getInstance().getGames().get(gameId);
         if (game == null) {
             throw new NotFoundException("Game not found");
@@ -110,7 +174,7 @@ public class GameService {
         Piece piece = square.getPiece();
         List<Move> validMoves = game.getRules().getPossibleMoves(piece, game.getBoard());
 
-        return validMoves.stream().map(move -> new SimplifiedMove(
+        return validMoves.stream().map(move -> new MoveDTO(
                 move.getStart().getSquareName(),
                 move.getEnd().getSquareName(),
                 move.isCastle() || move.isEnPassantCapture() || move.isPromotion()

@@ -85,12 +85,12 @@ public class Game implements GameSubject {
                 gameState.getCurrentPlayer().isWhite())) {
             gameState.setCheck(true);
             if (!gameState.getCurrentPlayer().hasLegalMoves(board, rules)) {
-                gameState.setCheckmate();
+                gameState.setCheckmate(true);
             }
         } else {
             gameState.setCheck(false);
             if (!gameState.getCurrentPlayer().hasLegalMoves(board, rules)) {
-                gameState.setStalemate();
+                gameState.setStalemate(true);
             }
         }
         notifyObservers(new GameStateChangeEvent(gameState));
