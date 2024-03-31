@@ -53,7 +53,6 @@ public class GameService {
         gameDTO.setGameId(game.getGameId());
         gameDTO.setGameHistory(game.getGameHistory());
         gameDTO.setBoard(makeBoardDTO(game.getBoard()));
-        gameDTO.setBoard(makeBoardDTO(game.getBoard()));
         gameDTO.setPlayer1(new PlayerDTO(player1.getLogin(), player1.getCapturedPieces()));
 
         return gameDTO;
@@ -64,15 +63,18 @@ public class GameService {
         BoardDTO boardDTO = new BoardDTO();
         boardDTO.setWhiteKing(new KingDTO(true, board.getKingSquare(true).getRow(), board.getKingSquare(true).getCol()));
         boardDTO.setBlackKing(new KingDTO(false, board.getKingSquare(false).getRow(), board.getKingSquare(false).getCol()));
+        PieceDTO[][] b = new PieceDTO[8][8];
         for(int row = 0; row < 8; row ++){
             for (int col = 0; col < 8; col++){
                 Piece piece = board.getSquare(row, col).getPiece();
                 if (piece != null) {
-                    boardDTO.setPiece(new PieceDTO(makePieceName(piece), piece.isWhite(), row, col), row, col);
+                    b[row][col] = new PieceDTO(makePieceName(piece), row, col);
+                }else{
+                    b[row][col] = new PieceDTO("", row, col);
                 }
-                else boardDTO.setNull(row, col);
             }
         }
+        boardDTO.setBoard(b);
         return boardDTO;
     }
 
@@ -175,8 +177,8 @@ public class GameService {
         List<Move> validMoves = game.getRules().getPossibleMoves(piece, game.getBoard());
 
         return validMoves.stream().map(move -> new MoveDTO(
-                move.getStart().getSquareName(),
-                move.getEnd().getSquareName(),
+                move.getEnd().getRow(),
+                move.getEnd().getCol(),
                 move.isCastle() || move.isEnPassantCapture() || move.isPromotion()
         )).collect(Collectors.toList());
     }
