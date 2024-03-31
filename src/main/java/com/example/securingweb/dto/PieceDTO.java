@@ -7,9 +7,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class SimplifiedMove {
-    private String start;
-    private String end;
-    private boolean isSpecialMove;
-
+public class PieceDTO {
+    String name;
+    boolean isWhite;
+    int row;
+    int col;
 }
