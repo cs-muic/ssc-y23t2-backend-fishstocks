@@ -20,6 +20,8 @@ public class GameService {
         Game game = new Game();
         String gameId = UUID.randomUUID().toString();
         game.setGameId(gameId);
+        GameStorage.getInstance().setGame(game);
+
 
 
         GameHistory gameHistory = new GameHistory();
