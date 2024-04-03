@@ -21,8 +21,8 @@ public class GameService {
         String gameId = UUID.randomUUID().toString();
         game.setGameId(gameId);
 
+
         GameHistory gameHistory = new GameHistory();
-        gameHistory.setGameID(gameId);
         game.setPlayer1(player1);
         game.setGameState(new GameState(player1));
 
@@ -57,7 +57,7 @@ public class GameService {
     }
 
 
-    private BoardDTO makeBoardDTO(Board board) {
+    public BoardDTO makeBoardDTO(Board board) {
         BoardDTO boardDTO = new BoardDTO();
         boardDTO.setWhiteKing(new KingDTO(true, board.getKingSquare(true).getRow(), board.getKingSquare(true).getCol()));
         boardDTO.setBlackKing(new KingDTO(false, board.getKingSquare(false).getRow(), board.getKingSquare(false).getCol()));
@@ -134,19 +134,19 @@ public class GameService {
         return game;
     }
 
-    public Game gamePlay(GamePlay gamePlay) throws NotFoundException, InvalidGameException {
-        if (!GameStorage.getInstance().getGames().containsKey(gamePlay.getGameId())) {
+    public Game gamePlay(String gameId, MoveDTO moveDTO) throws NotFoundException, InvalidGameException {
+        if (!GameStorage.getInstance().getGames().containsKey(gameId)) {
             throw new NotFoundException("Game not found");
         }
 
-        Game game = GameStorage.getInstance().getGames().get(gamePlay.getGameId());
+        Game game = GameStorage.getInstance().getGames().get(gameId);
         if (game.getStatus().equals(GameStatus.FINISHED)) {
             throw new InvalidGameException("Game is already finished");
         }
 
         Board board = game.getBoard();
-        Square start = board.getSquare(gamePlay.getStart().getRow(), gamePlay.getStart().getCol());
-        Square end = board.getSquare(gamePlay.getEnd().getRow(), gamePlay.getEnd().getCol());
+        Square start = board.getSquare(moveDTO.getStartRow(), moveDTO.getStartCol());
+        Square end = board.getSquare(moveDTO.getEndRow(), moveDTO.getEndCol());
 
         Piece movedPiece = start.getPiece();
         List<Move> possibleMoves = game.getRules().getPossibleMoves(movedPiece, game.getBoard());
@@ -155,11 +155,10 @@ public class GameService {
                 .filter(move -> move.getStart().equals(start) && move.getEnd().equals(end))
                 .findFirst()
                 .orElseThrow(() -> new InvalidGameException("Invalid move"));
-
         if (!game.makeMove(userMove)) {
             throw new InvalidGameException("Invalid move");
         }
-
+        game.updateGameState();
         GameStorage.getInstance().setGame(game);
         return game;
     }
@@ -175,9 +174,11 @@ public class GameService {
         List<Move> validMoves = game.getRules().getPossibleMoves(piece, game.getBoard());
 
         return validMoves.stream().map(move -> new MoveDTO(
+                move.getStart().getRow(),
+                move.getStart().getCol(),
                 move.getEnd().getRow(),
-                move.getEnd().getCol()
-                , move.moveTypetoString()
+                move.getEnd().getCol(),
+                move.moveTypetoString()
         )).collect(Collectors.toList());
     }
 
@@ -186,20 +187,21 @@ public class GameService {
         if (game == null) {
             throw new NotFoundException("Game not found");
         }
-        int s_row = pieceDTO.getRow();
-        int s_col = pieceDTO.getCol();
-        int e_row = moveDTO.getRow();
-        int e_col = moveDTO.getCol();
+        int s_row = moveDTO.getStartRow();
+        int s_col = moveDTO.getStartCol();
+        int e_row = moveDTO.getEndRow();
+        int e_col = moveDTO.getEndCol();
         Square start = game.getBoard().getSquare(s_row,s_col);
         Square end = game.getBoard().getSquare(e_row,e_col);
         Piece movePiece = game.getBoard().getSquare(s_row,s_col).getPiece();
         Piece capturedPiece = game.getBoard().getSquare(e_row,e_col).getPiece();
+
         if (moveDTO.getSpecialMove().equals( "CASTLE")){
             game.getBoard().doCastle(movePiece,capturedPiece);
         } else if (moveDTO.getSpecialMove().equals("ENPASSANT")) {
             game.getBoard().doEnPassant(movePiece,capturedPiece);
         }else if (moveDTO.getSpecialMove().equals("PROMOTION")) {
-            promotePawn(game,pieceDTO, moveDTO);
+            promotePawn(game, pieceDTO, moveDTO);
         }else{
             if (capturedPiece != null){
                 game.getBoard().handleCapturedPiece(game.getGameState(),capturedPiece);
@@ -242,10 +244,10 @@ public class GameService {
         public void promotePawn(Game game, PieceDTO pieceDTO, MoveDTO moveDTO) {
         // Get the location where the pawn should be promoted
 
-        int s_row = pieceDTO.getRow();
-        int s_col = pieceDTO.getCol();
-        int e_row = moveDTO.getRow();
-        int e_col = moveDTO.getCol();
+        int s_row = moveDTO.getStartRow();
+        int s_col = moveDTO.getStartCol();
+        int e_row = moveDTO.getEndRow();
+        int e_col = moveDTO.getEndCol();
         Square start = game.getBoard().getSquare(s_row,s_col);
         Square end = game.getBoard().getSquare(e_row,e_col);
         Piece movePiece = game.getBoard().getSquare(s_row,s_col).getPiece();

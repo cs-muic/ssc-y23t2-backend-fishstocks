@@ -5,7 +5,6 @@ import com.example.securingweb.exception.InvalidGameException;
 import com.example.securingweb.exception.InvalidParamException;
 import com.example.securingweb.exception.NotFoundException;
 import com.example.securingweb.model.chess.Game;
-import com.example.securingweb.model.chess.GamePlay;
 import com.example.securingweb.model.chess.Player;
 import com.example.securingweb.service.GameService;
 import lombok.AllArgsConstructor;
@@ -46,18 +45,26 @@ public class GameController {
         return ResponseEntity.ok(gameService.connectToRandomGame(player));
     }
 
-    @PostMapping("/gameplay")
-    public ResponseEntity<Game> gamePlay(@RequestBody GamePlay request) throws NotFoundException, InvalidGameException{
+    @PostMapping("/{gameId}/gameplay")
+    public ResponseEntity<GameDTO> gamePlay(@PathVariable String gameId, @RequestBody MoveDTO request) throws NotFoundException, InvalidGameException{
         log.info("gameplay: {}", request);
-        Game game = gameService.gamePlay(request);
+        Game game = gameService.gamePlay(gameId,request);
+        GameDTO gameDTO = new GameDTO(
+                gameId,
+                gameService.makeBoardDTO(game.getBoard()),
+                new PlayerDTO(game.getPlayer1().getLogin(), game.getPlayer1().getCapturedPieces()),
+                new PlayerDTO(game.getPlayer1().getLogin(), game.getPlayer1().getCapturedPieces()),
+                game.getGameHistory(),
+                game.getStatus());
+
         simpMessagingTemplate.convertAndSend("/topic/game-progress" + game.getGameId(), game); // use websocket to notify the other player of our move
-        return ResponseEntity.ok(game);
+        return ResponseEntity.ok(gameDTO);
     }
 
     @PostMapping("/{gameId}/makeMove")
     public ResponseEntity<BoardDTO> makeMove(@PathVariable String gameId, @RequestBody PieceDTO pieceDTO, @RequestBody MoveDTO moveDTO){
     try{
-        BoardDTO board = gameService.makeMove(gameId,pieceDTO, moveDTO);
+        BoardDTO board = gameService.makeMove(gameId, pieceDTO, moveDTO);
         return ResponseEntity.ok(board);
     } catch (NotFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);

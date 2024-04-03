@@ -80,7 +80,7 @@ public class Game {
         gameState.setCurrentPlayer((gameState.getCurrentPlayer() == player1) ? player2 : player1);
     }
 
-    private void updateGameState() {
+    public void updateGameState() {
         if (rules.scanCheck(board.getKingSquare(gameState.getCurrentPlayer().isWhite()),
                 gameState.getCurrentPlayer().isWhite())) {
             gameState.setCheck(true);
@@ -93,20 +93,6 @@ public class Game {
                 gameState.setStalemate(true);
             }
         }
-//        notifyObservers(new GameStateChangeEvent(gameState));
-    }
-
-
-
-    /**
-     * Play loop for console
-     */
-    public void play(Move move) throws InvalidMoveException {
-        if (!makeMove(move)) {
-            throw new InvalidMoveException("Invalid move");
-        }
-
-        updateGameState();
     }
 
 }
