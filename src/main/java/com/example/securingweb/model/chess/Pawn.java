@@ -2,7 +2,6 @@ package com.example.securingweb.model.chess;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public class Pawn extends Piece {
 

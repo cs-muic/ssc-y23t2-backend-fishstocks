@@ -1,10 +1,10 @@
 package com.example.securingweb.model.chess;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 public class Player implements GameObserver {
