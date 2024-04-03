@@ -9,7 +9,6 @@ import java.util.List;
 @Getter
 public class GameHistory {
     @Setter
-    private String gameID;
     private List<Move> gameHistory;
     private List<Move> playerWhiteHistory;
     private List<Move> playerBlackHistory;

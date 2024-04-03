@@ -6,14 +6,13 @@ import lombok.*;
 
 import java.util.List;
 
-@AllArgsConstructor
 @Builder
 @Data
 @Entity
 @Setter
 @Getter
 @Table(name = "GameMatch")
-
+@AllArgsConstructor
 //
 public class GameMatch {
     @Id

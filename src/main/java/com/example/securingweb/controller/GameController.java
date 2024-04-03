@@ -1,19 +1,18 @@
 package com.example.securingweb.controller;
-import com.example.securingweb.dto.ConnectRequest;
-import com.example.securingweb.dto.GameDTO;
-import com.example.securingweb.dto.MoveDTO;
-import com.example.securingweb.dto.PieceDTO;
+
+import com.example.securingweb.dto.*;
 import com.example.securingweb.exception.InvalidGameException;
 import com.example.securingweb.exception.InvalidParamException;
 import com.example.securingweb.exception.NotFoundException;
-import com.example.securingweb.model.chess.*;
+import com.example.securingweb.model.chess.Game;
+import com.example.securingweb.model.chess.Player;
+import com.example.securingweb.service.GameService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
-import com.example.securingweb.service.GameService;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -46,12 +45,30 @@ public class GameController {
         return ResponseEntity.ok(gameService.connectToRandomGame(player));
     }
 
-    @PostMapping("/gameplay")
-    public ResponseEntity<Game> gamePlay(@RequestBody GamePlay request) throws NotFoundException, InvalidGameException{
+    @PostMapping("/{gameId}/gameplay")
+    public ResponseEntity<GameDTO> gamePlay(@PathVariable String gameId, @RequestBody MoveDTO request) throws NotFoundException, InvalidGameException{
         log.info("gameplay: {}", request);
-        Game game = gameService.gamePlay(request);
+        Game game = gameService.gamePlay(gameId,request);
+        GameDTO gameDTO = new GameDTO(
+                gameId,
+                gameService.makeBoardDTO(game.getBoard()),
+                new PlayerDTO(game.getPlayer1().getLogin(), game.getPlayer1().getCapturedPieces()),
+                new PlayerDTO(game.getPlayer1().getLogin(), game.getPlayer1().getCapturedPieces()),
+                game.getGameHistory(),
+                game.getStatus());
+
         simpMessagingTemplate.convertAndSend("/topic/game-progress" + game.getGameId(), game); // use websocket to notify the other player of our move
-        return ResponseEntity.ok(game);
+        return ResponseEntity.ok(gameDTO);
+    }
+
+    @PostMapping("/{gameId}/makeMove")
+    public ResponseEntity<BoardDTO> makeMove(@PathVariable String gameId, @RequestBody PieceDTO pieceDTO, @RequestBody MoveDTO moveDTO){
+    try{
+        BoardDTO board = gameService.makeMove(gameId, pieceDTO, moveDTO);
+        return ResponseEntity.ok(board);
+    } catch (NotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+    }
     }
     @PostMapping("/{gameId}/getPossibleMoves")
     public ResponseEntity<List<MoveDTO>> validMoves(@PathVariable String gameId, @RequestBody PieceDTO piece) {

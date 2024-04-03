@@ -13,7 +13,7 @@ import java.util.List;
 
 @Setter
 @Getter
-public class Game implements GameSubject {
+public class Game {
     private String gameId;
     private List<GameObserver> observers = new ArrayList<>();
     private GameState gameState;
@@ -76,11 +76,11 @@ public class Game implements GameSubject {
 
     }
 
-    private void switchPlayers() {
+    public void switchPlayers() {
         gameState.setCurrentPlayer((gameState.getCurrentPlayer() == player1) ? player2 : player1);
     }
 
-    private void updateGameState() {
+    public void updateGameState() {
         if (rules.scanCheck(board.getKingSquare(gameState.getCurrentPlayer().isWhite()),
                 gameState.getCurrentPlayer().isWhite())) {
             gameState.setCheck(true);
@@ -93,32 +93,6 @@ public class Game implements GameSubject {
                 gameState.setStalemate(true);
             }
         }
-        notifyObservers(new GameStateChangeEvent(gameState));
-    }
-
-    @Override
-    public void addObserver(GameObserver observer) {
-        observers.add(observer);
-    }
-
-    @Override
-    public void removeObserver(GameObserver observer) {
-        observers.remove(observer);
-    }
-
-    @Override
-    public void notifyObservers(GameEvent event) {
-    }
-
-    /**
-     * Play loop for console
-     */
-    public void play(Move move) throws InvalidMoveException {
-        if (!makeMove(move)) {
-            throw new InvalidMoveException("Invalid move");
-        }
-
-        updateGameState();
     }
 
 }
