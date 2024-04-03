@@ -1,5 +1,10 @@
 package com.example.securingweb.model.chess;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class GameState implements GameObserver {
     private Player currentPlayer;
     private boolean check;
@@ -18,10 +23,6 @@ public class GameState implements GameObserver {
         return currentPlayer;
     }
 
-    public void setCheck(boolean check) {
-        this.check = check;
-    }
-
     public boolean isCheckmate() {
         return checkmate;
     }
@@ -34,20 +35,11 @@ public class GameState implements GameObserver {
         return stalemate;
     }
 
-    public void setCheckmate() {
-        this.checkmate = true;
-    }
 
-    public void setStalemate() {
-        this.stalemate = true;
-    }
 
     @Override
     public void update(GameEvent event) {
 
     }
 
-    public void setCurrentPlayer(Player currentPlayer) {
-        this.currentPlayer = currentPlayer;
-    }
 }

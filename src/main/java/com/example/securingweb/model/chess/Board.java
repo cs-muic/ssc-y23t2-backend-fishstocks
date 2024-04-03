@@ -1,15 +1,23 @@
 package com.example.securingweb.model.chess;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+
+@Getter
+@Setter
 
 public class Board {
     private final Square[][] board;
-    private final Map<Boolean, Square> kingPositions = new HashMap<>();
+
+    private HashMap<Boolean, Square> kingMap = new HashMap<>();
+
 
     /**
-     * Initial board setup: Squares + Pieces
+     * Initial board setup: Squares + Piece
+     * Pieces are also put into a hashmap for easy access
      */
     public Board() {
         // Fill board with squares
@@ -27,37 +35,44 @@ public class Board {
 
         // Fill starting squares with right pieces
         for (int col = 0; col < 8; col++) {
-            board[1][col].setPiece(new Pawn(false, board[1][col]));
-            board[6][col].setPiece(new Pawn(true, board[6][col]));
+            placePiece(PieceType.PAWN, false, 1, col);
+            placePiece(PieceType.PAWN, true, 6, col);
         }
         // Place black pieces
-        board[0][0].setPiece(new Rook(false, board[0][0]));
-        board[0][7].setPiece(new Rook(false, board[0][7]));
-        board[0][1].setPiece(new Knight(false, board[0][1]));
-        board[0][6].setPiece(new Knight(false, board[0][6]));
-        board[0][2].setPiece(new Bishop(false, board[0][2]));
-        board[0][5].setPiece(new Bishop(false, board[0][5]));
-        board[0][3].setPiece(new Queen(false, board[0][3]));
-        board[0][4].setPiece(new King(false, board[0][4]));
+        placePiece(PieceType.ROOK, false, 0, 0);
+        placePiece(PieceType.ROOK, false, 0, 7);
+        placePiece(PieceType.ROOK, true, 7, 0);
+        placePiece(PieceType.ROOK, true, 7, 7);
 
-        // Place white pieces
-        board[7][0].setPiece(new Rook(true, board[7][0]));
-        board[7][7].setPiece(new Rook(true, board[7][7]));
-        board[7][1].setPiece(new Knight(true, board[7][1]));
-        board[7][6].setPiece(new Knight(true, board[7][6]));
-        board[7][2].setPiece(new Bishop(true, board[7][2]));
-        board[7][5].setPiece(new Bishop(true, board[7][5]));
-        board[7][3].setPiece(new Queen(true, board[7][3]));
-        board[7][4].setPiece(new King(true, board[7][4]));
+        placePiece(PieceType.KNIGHT, false, 0, 1);
+        placePiece(PieceType.KNIGHT, false, 0, 6);
+        placePiece(PieceType.KNIGHT, true, 7, 1);
+        placePiece(PieceType.KNIGHT, true, 7, 6);
 
-        // Keep track of king positions for easy access for checkmate scan
-        kingPositions.put(true, board[7][4]); // White King's initial position
-        kingPositions.put(false, board[0][4]); // Black King's initial position
+        placePiece(PieceType.BISHOP, false, 0, 2);
+        placePiece(PieceType.BISHOP, false, 0, 5);
+        placePiece(PieceType.BISHOP, true, 7, 2);
+        placePiece(PieceType.BISHOP, true, 7, 5);
+
+        placePiece(PieceType.QUEEN, false, 0, 3);
+        placePiece(PieceType.QUEEN, true, 7, 3);
+
+        placePiece(PieceType.KING, false, 0, 4);
+        placePiece(PieceType.KING, true, 7, 4);
+
+    }
+
+    private void placePiece(PieceType type, boolean isWhite, int row, int col) {
+        Piece piece = PieceFactory.createPiece(this, type, isWhite, row, col);
+        board[row][col].setPiece(piece);
+        if(type == PieceType.KING){
+            kingMap.put(isWhite, this.getSquare(row, col));
+        }
     }
 
     /**
      * Checks that the row and col is within the board's bounds
-     * 
+     *
      * @param row
      * @param col
      * @return true if within board
@@ -68,7 +83,7 @@ public class Board {
 
     /**
      * Returns the square on that board coordinate
-     * 
+     *
      * @param row
      * @param col
      * @return
@@ -92,7 +107,7 @@ public class Board {
                     displayChar = currPiece.getSymbol();
                 } else {
                     // Differentiate color for empty squares more visibly
-                    displayChar = currSquare.getIsWhite() ? '.' : '-'; // Using '.' for white, ':' for black for
+                    displayChar = currSquare.isWhite() ? '.' : '-'; // Using '.' for white, ':' for black for
                     // visibility
                 }
 
@@ -102,72 +117,116 @@ public class Board {
         }
     }
 
-    /**
-     * Will display the squares that a piece can move to
-     * 
-     * @param selectedSquare
-     */
-    public void displayMovableSquares(ChessRules rules, Square selectedSquare) {
-        Piece selectedPiece = selectedSquare.getPiece();
-        if (selectedPiece == null) {
-            System.out.println("No piece at the selected square.");
-            return;
-        }
-
-        List<Move> possibleMoves = rules.getPossibleMoves(selectedPiece, this);
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                Square square = getSquare(i, j);
-                boolean isMoveTarget = possibleMoves.stream().anyMatch(move -> move.getEnd().equals(square));
-                if (isMoveTarget) {
-                    System.out.print("* ");
-                } else if (square.getPiece() == null) {
-                    System.out.print(". ");
-                } else {
-                    System.out.print(square.getPiece().getSymbol() + " ");
-                }
-            }
-            System.out.println();
-        }
-    }
 
     public void movePiece(Square start, Square end) {
         Piece piece = start.getPiece();
         if (piece != null) {
-            // If the piece being moved is a king, update its position in the kingPositions map
-            if (piece.getType() == PieceType.KING) {
-                kingPositions.put(piece.isWhite(), end);
+            Piece capturedPiece = end.getPiece();
+            if (capturedPiece != null) {
+//                updateMap(false, capturedPiece); // Remove the captured piece from the map
             }
-            piece.updateSquare(end);
+            piece.updateLocation(end.getRow(), end.getCol());
             end.setPiece(piece);
-            start.setPiece(null);
+            start.emptySquare();
+
+            piece.incrementMoveCount();
         } else {
             throw new IllegalStateException("No piece at the start square");
         }
     }
-    // public void movePiece(Square start, Square end) {
-    // if (start.getPiece().getType() == PieceType.KING) { // If it's a king piece,
-    // update the hashmap
-    // kingPositions.put(start.getPiece().isWhite, end);
-    // }
-    // end.setPiece(start.getPiece());
-    // start.setPiece(null);
-    // end.getPiece().updateSquare(end);
-    // }
 
-    public Square getKingSquare(boolean isWhite) {
-        return kingPositions.get(isWhite);
+    public void undoMove(Move move) {
+        // Move the piece back to its original position
+        Piece piece = move.getEnd().getPiece();
+        if (piece != null) {
+            piece.updateLocation(move.getStart().getRow(), move.getStart().getCol());
+            move.getStart().setPiece(piece);
+            if(move.getCapturedPiece() == null){
+                move.getEnd().emptySquare();
+            }else{
+                move.getEnd().setPiece(move.getCapturedPiece());
+            }
+            piece.decrementMoveCount();
+        } else {
+            throw new IllegalStateException("No piece at the end square");
+        }
+
     }
 
-    public void undoMove(Square start, Square end, Piece movedPiece, Piece capturedPiece) {
-        if (movedPiece.getType() == PieceType.KING) { // If it's a king piece, update the hashmap
-            kingPositions.put(movedPiece.isWhite(), start);
+    public Square getKingSquare(boolean isWhite) {
+        return kingMap.get(isWhite);
+    }
+
+    public void doEnPassant(Piece attackingPawn, Piece targetPawn) {
+        // Get the location of the target pawn
+        Square targetLocation = getSquare(targetPawn.getRow(), targetPawn.getCol());
+
+        // Determine the location where the attacking pawn should end up
+        Square newLocation;
+        if (attackingPawn.isWhite()) {
+            newLocation = getSquare(targetLocation.getRow() - 1, targetLocation.getCol());
+        } else {
+            newLocation = getSquare(targetLocation.getRow() + 1, targetLocation.getCol());
         }
-        movedPiece.updateSquare(start);
-        if (capturedPiece != null) {
-            capturedPiece.updateSquare(end);
+
+        // Remove the target pawn from the board
+        targetLocation.emptySquare();
+        // Remove the attacking pawn from its old location
+        getSquare(attackingPawn.getRow(), attackingPawn.getCol()).emptySquare();
+
+        // Move the attacking pawn to the new location
+        attackingPawn.updateLocation(newLocation.getRow(), newLocation.getCol());
+        newLocation.setPiece(attackingPawn);
+    }
+
+    public void doCastle(Piece king, Piece rook) {
+        // Get the original locations
+        Square kingStart = getSquare(king.getRow(), king.getCol());
+        Square rookStart = getSquare(rook.getRow(), rook.getCol());
+
+        // Determine the new locations
+        Square rookEnd, kingEnd;
+        if (rookStart.getCol() > kingStart.getCol()) { // Kingside castle
+            rookEnd = board[rookStart.getRow()][5];
+            kingEnd = board[kingStart.getRow()][6];
+        } else { // Queenside castle
+            rookEnd = board[rookStart.getRow()][3];
+            kingEnd = board[kingStart.getRow()][2];
         }
-        start.setPiece(movedPiece);
-        end.setPiece(capturedPiece);
+
+        // Move the pieces
+        movePiece(rookStart, rookEnd);
+        movePiece(kingStart, kingEnd);
+    }
+
+    public void promotePawn(Move move) {
+        // Get the location where the pawn should be promoted
+        Square location = move.getEnd();
+
+        // Store the pawn's original location
+        Square originalLocation = getSquare(move.getMovedPiece().getRow(), move.getMovedPiece().getCol());
+
+
+        if(move.getCapturedPiece() != null){
+            // need this for when the pawn captures AND promotes at the same time
+            getSquare(move.getCapturedPiece().getRow(), move.getCapturedPiece().getCol()).emptySquare(); // empty the square with wtv piece we just captured
+        }
+
+        // Empty the square where the pawn was
+        originalLocation.emptySquare();
+
+        // Empty the square where the pawn should be promoted
+        location.emptySquare();
+
+        // Create promoted piece
+        Piece promotedPiece = PieceFactory.createPromotedPiece(this, move.getMovedPiece().isWhite(), location.getRow(), location.getCol());
+
+        // Update the square
+        location.setPiece(promotedPiece);
+    }
+
+
+    public void handleCapturedPiece(GameState gameState, Piece capturedPiece) {
+        gameState.getCurrentPlayer().addCaptured(capturedPiece);
     }
 }

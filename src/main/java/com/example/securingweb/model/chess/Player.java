@@ -3,20 +3,26 @@ package com.example.securingweb.model.chess;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import lombok.Data;
+
+@Data
 public class Player implements GameObserver {
+    private String login;
     private boolean isWhite; // Player's color
+    @JsonManagedReference
     private List<Piece> capturedPieces; // Pieces this player has currently captured
+    @JsonManagedReference
     private List<Square> occupiedSquares;
 
-    public Player(boolean isWhite, Board board) {
-        this.isWhite = isWhite;
+    public Player(String login) {
+        this.login = login;
         this.capturedPieces = new ArrayList<>();
         this.occupiedSquares = new ArrayList<>();
-        setupOccupiedSquares(isWhite, board);
-
     }
 
-    private void setupOccupiedSquares(Boolean isWhite, Board board) {
+    public void setupOccupiedSquares(boolean isWhite, Board board) {
+
         int start = isWhite ? 6 : 0;
         int end = isWhite ? 7 : 1;
 
@@ -35,31 +41,10 @@ public class Player implements GameObserver {
         return isWhite;
     }
 
-    public List<Square> getSquares() {
-        return occupiedSquares;
-    }
-
     public void updateSquares(Square start, Square end) {
         occupiedSquares.remove(start);
         occupiedSquares.add(end);
     }
-
-    // @Override
-    // public void update(GameState state) {
-    // // Check if it's this player's turn
-    // if (state.isWhiteTurn() == this.isWhite) {
-    // System.out.println("It's your turn."); // change this to graphical version
-    // later
-    // }
-    //
-    // // React to check or checkmate status
-    // if (state.isCheck()) {
-    // System.out.println("You are in check.");
-    // }
-    // if (state.isCheckmate()) {
-    // System.out.println("Checkmate.");
-    // }
-    // }
 
     /**
      * Scans if player still has any legal moves

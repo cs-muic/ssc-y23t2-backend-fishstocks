@@ -1,4 +1,13 @@
 package com.example.securingweb.model.chess;
+
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+
 public class Square {
     private String name;
     private Piece piece;
@@ -16,8 +25,7 @@ public class Square {
         // Define letters for columns
         char[] columnLetters = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
         // Calculate square name based on row and column indices
-        String squareName = String.valueOf(columnLetters[col]) + (8 - row);
-        return squareName;
+        return String.valueOf(columnLetters[col]) + (8 - row);
     }
 
     public String getSquareName(){return name;}
@@ -25,24 +33,8 @@ public class Square {
         return piece != null;
     }
 
-    public Piece getPiece() {
-        return piece;
-    }
-
-    public void setPiece(Piece piece) {
-        this.piece = piece;
-    }
-
-    public void removePiece() {
-        this.piece = null;
-    }
-    public int getRow(){
-        return this.row;
-    }
-    public int getCol(){
-        return this.col;
-    }
-    public boolean getIsWhite(){
+    public void emptySquare(){ this.piece = null; }
+    public boolean isWhite(){
         return isWhite;
     }
 

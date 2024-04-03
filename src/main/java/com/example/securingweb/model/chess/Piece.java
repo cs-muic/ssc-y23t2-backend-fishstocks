@@ -1,35 +1,51 @@
 package com.example.securingweb.model.chess;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.List;
 
+@Getter
+@Setter
+
 public abstract class Piece {
-    protected Square square; // Position on the board
+    protected int row; // Position on the board
+    protected int col;
     protected boolean isWhite;
     protected PieceType type;
+    // Currently is symbol for console but will need to be switched to png
     protected char symbol;
+    protected int moveCount;
 
-    public char getSymbol() {
-        return symbol; // Currently is symbol for console but will need to be switched to png
-    }
-
-    public Piece(boolean isWhite, PieceType type, Square square, char symbol) {
+    public Piece(boolean isWhite, PieceType type, int row, int col, char symbol) {
         this.isWhite = isWhite;
         this.type = type;
-        this.square = square;
+        this.row = row;
+        this.col = col;
         this.symbol = symbol;
+        this.moveCount = 0;
     }
 
     public abstract List<Move> getUnfilteredMoves(Board board);
 
-    public boolean isWhite() {
-        return isWhite;
+    public void incrementMoveCount() {
+        moveCount++;
     }
 
-    public PieceType getType() {
-        return this.type;
+    public void decrementMoveCount() {
+        if (moveCount > 0) {
+            moveCount--;
+        }
     }
 
-    public void updateSquare(Square square) {
-        this.square = square;
+    public boolean hasMoved() {
+        return moveCount > 0;
+    }
+
+    public void updateLocation(int row, int col) {
+        this.row = row;
+        this.col = col;
     }
 }

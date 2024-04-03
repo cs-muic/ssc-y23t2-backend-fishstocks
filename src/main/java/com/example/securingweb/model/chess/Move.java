@@ -1,48 +1,29 @@
 package com.example.securingweb.model.chess;
 
+import lombok.Getter;
+
 public class Move {
     // Handles movement, en passant, castling, promotions
+    @Getter
     private final Square start;
+    @Getter
     private final Square end;
+    @Getter
     private final Piece movedPiece;
+    @Getter
     private final Piece capturedPiece;
+    @Getter
     private final String notation;
-    private final boolean isEnPassantCapture;
-    private final boolean isCastlingKingSide;
-    private final boolean isCastlingQueenSide;
-    private final PieceType promotionType;
+    private final MoveType moveType;
 
-    public Move(Square start, Square end, Piece movedPiece, Piece capturedPiece, boolean isEnPassantCapture,
-            boolean isCastlingKingSide, boolean isCastlingQueenSide, PieceType promotionType) {
+
+    public Move(Square start, Square end, Piece movedPiece, Piece capturedPiece, MoveType moveType) {
         this.start = start;
         this.end = end;
         this.movedPiece = movedPiece;
         this.capturedPiece = capturedPiece;
-        this.isEnPassantCapture = isEnPassantCapture;
-        this.isCastlingKingSide = isCastlingKingSide;
-        this.isCastlingQueenSide = isCastlingQueenSide;
-        this.promotionType = promotionType;
+        this.moveType = moveType;
         this.notation = makeNotation();
-    }
-
-    public Square getStart() {
-        return start;
-    }
-
-    public Square getEnd() {
-        return end;
-    }
-
-    public Piece getMovedPiece() {
-        return movedPiece;
-    }
-
-    public Piece getCapturedPiece() {
-        return capturedPiece;
-    }
-
-    public String getNotation() {
-        return notation;
     }
 
     private String makeNotation() {
@@ -59,19 +40,15 @@ public class Move {
     }
 
     public boolean isEnPassantCapture() {
-        return isEnPassantCapture;
+        return moveType == MoveType.EN_PASSANT;
     }
 
-    public boolean isCastlingKingSide() {
-        return isCastlingKingSide;
+    public boolean isCastle() {
+        return moveType == MoveType.CASTLE;
     }
 
-    public boolean isCastlingQueenSide() {
-        return isCastlingQueenSide;
-    }
 
-    public PieceType getPromotionType() {
-        return promotionType;
-    }
+    public boolean isPromotion() {return moveType == MoveType.PROMOTION;}
+
 
 }
