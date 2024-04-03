@@ -1,8 +1,9 @@
 package com.example.securingweb.dto;
 
-import com.example.securingweb.model.chess.*;
-import lombok.Setter;
+import com.example.securingweb.model.chess.GameHistory;
+import com.example.securingweb.model.chess.GameStatus;
 import lombok.Getter;
+import lombok.Setter;
 
 
 @Getter

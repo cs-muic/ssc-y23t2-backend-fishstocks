@@ -10,6 +10,7 @@ import lombok.Setter;
 public class MoveDTO {
     private int row;
     private int col;
-    private boolean isSpecialMove;
+//    private boolean isSpecialMove;
+    private String SpecialMove;
 
 }

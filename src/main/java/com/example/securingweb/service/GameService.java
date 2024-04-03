@@ -5,11 +5,9 @@ import com.example.securingweb.exception.InvalidGameException;
 import com.example.securingweb.exception.InvalidParamException;
 import com.example.securingweb.exception.NotFoundException;
 import com.example.securingweb.model.chess.*;
-
 import com.example.securingweb.storage.GameStorage;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-
 
 import java.util.List;
 import java.util.UUID;
@@ -178,10 +176,104 @@ public class GameService {
 
         return validMoves.stream().map(move -> new MoveDTO(
                 move.getEnd().getRow(),
-                move.getEnd().getCol(),
-                move.isCastle() || move.isEnPassantCapture() || move.isPromotion()
+                move.getEnd().getCol()
+                , move.moveTypetoString()
         )).collect(Collectors.toList());
     }
+
+    public BoardDTO makeMove(String gameId, PieceDTO pieceDTO, MoveDTO moveDTO) throws NotFoundException {
+        Game game = GameStorage.getInstance().getGames().get(gameId);
+        if (game == null) {
+            throw new NotFoundException("Game not found");
+        }
+        int s_row = pieceDTO.getRow();
+        int s_col = pieceDTO.getCol();
+        int e_row = moveDTO.getRow();
+        int e_col = moveDTO.getCol();
+        Square start = game.getBoard().getSquare(s_row,s_col);
+        Square end = game.getBoard().getSquare(e_row,e_col);
+        Piece movePiece = game.getBoard().getSquare(s_row,s_col).getPiece();
+        Piece capturedPiece = game.getBoard().getSquare(e_row,e_col).getPiece();
+        if (moveDTO.getSpecialMove().equals( "CASTLE")){
+            game.getBoard().doCastle(movePiece,capturedPiece);
+        } else if (moveDTO.getSpecialMove().equals("ENPASSANT")) {
+            game.getBoard().doEnPassant(movePiece,capturedPiece);
+        }else if (moveDTO.getSpecialMove().equals("PROMOTION")) {
+            promotePawn(game,pieceDTO, moveDTO);
+        }else{
+            if (capturedPiece != null){
+                game.getBoard().handleCapturedPiece(game.getGameState(),capturedPiece);
+            }
+            game.getBoard().movePiece(start,end);
+
+        }
+        game.switchPlayers();
+        return makeBoardDTO(game.getBoard());
+    }
+
+
+
+    /*
+        private void executeMove(Move move) {
+
+        // Handle special moves -> castling, en passant, and promotion
+        if (move.isCastle()) {
+            board.doCastle(move.getMovedPiece(), move.getCapturedPiece());
+        } else if (move.isEnPassantCapture()) {
+            board.doEnPassant(move.getMovedPiece(), move.getCapturedPiece());
+        } else if (move.isPromotion()) {
+            // Handle pawn promotion
+            board.promotePawn(move);
+        } else {
+            // Standard move
+            Piece capturedPiece = move.getCapturedPiece();
+            if (capturedPiece != null) {
+                board.handleCapturedPiece(gameState, capturedPiece);
+
+            }
+            board.movePiece(move.getStart(), move.getEnd());
+        }
+        switchPlayers();
+
+    }
+     */
+
+
+        public void promotePawn(Game game, PieceDTO pieceDTO, MoveDTO moveDTO) {
+        // Get the location where the pawn should be promoted
+
+        int s_row = pieceDTO.getRow();
+        int s_col = pieceDTO.getCol();
+        int e_row = moveDTO.getRow();
+        int e_col = moveDTO.getCol();
+        Square start = game.getBoard().getSquare(s_row,s_col);
+        Square end = game.getBoard().getSquare(e_row,e_col);
+        Piece movePiece = game.getBoard().getSquare(s_row,s_col).getPiece();
+        Piece capturedPiece = game.getBoard().getSquare(e_row,e_col).getPiece();
+        Square location = end;
+
+        // Store the pawn's original location
+        Square originalLocation = game.getBoard().getSquare(movePiece.getRow(), movePiece.getCol());
+
+
+        if(capturedPiece != null){
+            // need this for when the pawn captures AND promotes at the same time
+            game.getBoard().getSquare(capturedPiece.getRow(), capturedPiece.getCol()).emptySquare(); // empty the square with wtv piece we just captured
+        }
+
+        // Empty the square where the pawn was
+        originalLocation.emptySquare();
+
+        // Empty the square where the pawn should be promoted
+        location.emptySquare();
+
+        // Create promoted piece
+        Piece promotedPiece = PieceFactory.createPromotedPiece(game.getBoard(), movePiece.isWhite(), location.getRow(), location.getCol());
+
+        // Update the square
+        location.setPiece(promotedPiece);
+    }
+
 
 
 }
