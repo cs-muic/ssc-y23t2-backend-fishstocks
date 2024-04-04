@@ -12,9 +12,5 @@ public class MoveDTO {
     private int startCol;
     private int endRow;
     private int endCol;
-//    private boolean isSpecialMove;
-    private String SpecialMove;
-
-    private String name;
 
 }

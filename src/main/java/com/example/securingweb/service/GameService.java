@@ -10,6 +10,7 @@ import com.example.securingweb.storage.GameStorage;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -20,33 +21,21 @@ import java.util.stream.Collectors;
 public class GameService {
 
     private UserRepository userRepository;
-    private Game createGame(Player player1){
+    public Game createGame(PlayerDTO player1DTO){
         Game game = new Game();
         String gameId = UUID.randomUUID().toString();
         game.setGameId(gameId);
+        game.setBoard(new Board());
         GameStorage.getInstance().setGame(game);
+        game.setPlayer1(new Player(true, player1DTO, gameId));
 
-
-
-        GameHistory gameHistory = new GameHistory();
-        game.setPlayer1(player1);
-        game.setPlayer2(new Player("kk2")); //major fix
-        game.setGameState(new GameState(player1));
-
-
-        Board board = new Board();
-        game.setBoard(board);
-
-        game.getPlayer1().setWhite(true);
-        game.getPlayer1().setupOccupiedSquares(player1.isWhite(), board);
-
-
-        game.setGameState(new GameState(game.getPlayer1()));
-        game.setGameHistory(gameHistory);
-        game.setRules(new ChessRules(board, gameHistory));
+//        game.setPlayer2(new Player("kk2")); //major fix
+        game.setGameState(new GameState());
+        game.setGameHistory(new GameHistory());
+        game.setRules(new ChessRules(game.getBoard(), game.getGameHistory()));
         game.setStatus(GameStatus.NEW);
-        GameStorage.getInstance().setGame(game);
-
+        game.setCurrentPlayerIsWhite(true);
+        game.setPlayer2(new Player(false, new PlayerDTO("p2login", new ArrayList<>()), gameId));
         return game;
     }
 
@@ -60,10 +49,10 @@ public class GameService {
                 return GameStatus.NEW;
             }
             else if(!gameState.isCheckmate() || gameState.isStalemate()){
-                return GameStatus.IN_PROGRESS;
+                return GameStatus.FINISHED;
             }
             else{
-                return GameStatus.FINISHED;
+                return GameStatus.IN_PROGRESS;
             }
 
         }
@@ -72,23 +61,23 @@ public class GameService {
         }
     }
 
-    public PlayerDTO toplayerDTO(Player player){
-        List<PieceDTO> l = player.getCapturedPieces().stream().map(
-                (piece) -> new PieceDTO(piece.getType().toString(), piece.getRow(), piece.getCol())).toList();
-        return new PlayerDTO(player.getLogin(), l);
-    }
+//    public PlayerDTO toplayerDTO(Player player){
+//        List<PieceDTO> l = player.getCapturedPieces().stream().map(
+//                (piece) -> new PieceDTO(piece.getType().toString(), piece.getRow(), piece.getCol())).toList();
+//        return new PlayerDTO(player.getLogin(), l);
+//    }
 
-    public GameDTO createGameDTO(Player player1){
-
-        Game game = createGame(player1);
-
+    public GameDTO createGameDTO(Game game){
         GameDTO gameDTO = new GameDTO();
-        PlayerDTO playerDTO = toplayerDTO(player1);
-
         gameDTO.setGameId(game.getGameId());
         gameDTO.setGameHistory(game.getGameHistory());
         gameDTO.setBoard(makeBoardDTO(game.getBoard()));
-        gameDTO.setPlayer1(playerDTO);
+
+        gameDTO.setPlayer1(new PlayerDTO(game.getPlayer1().getLogin(), game.getPlayer1().getCapturedPieces()));
+        if(game.getPlayer2()!=null){
+            gameDTO.setPlayer2(new PlayerDTO(game.getPlayer2().getLogin(), game.getPlayer2().getCapturedPieces()));
+        }
+        gameDTO.setStatus(game.getStatus());
 
         return gameDTO;
     }
@@ -174,9 +163,7 @@ public class GameService {
     public Game gamePlay(String gameId, MoveDTO moveDTO) throws NotFoundException, InvalidGameException {
         Game game;
         if (!GameStorage.getInstance().getGames().containsKey(gameId)) {
-//            game = createGame(new Player(playerDTO.getLogin()));
-            game = createGame(new Player(moveDTO.getName()));
-//            throw new NotFoundException("Game not found");
+            throw new NotFoundException("Game not found");
         }else{
             game = GameStorage.getInstance().getGames().get(gameId);
         }
@@ -188,19 +175,17 @@ public class GameService {
         Board board = game.getBoard();
         Square start = board.getSquare(moveDTO.getStartRow(), moveDTO.getStartCol());
         Square end = board.getSquare(moveDTO.getEndRow(), moveDTO.getEndCol());
-
-        Piece movedPiece = start.getPiece();
-        List<Move> possibleMoves = game.getRules().getPossibleMoves(movedPiece, game.getBoard());
-
-        Move userMove = possibleMoves.stream()
-                .filter(move -> move.getStart().equals(start) && move.getEnd().equals(end))
+        List<Move> possibleMoves = game.getRules().getPossibleMoves(start.getPiece(), board);
+        Move chosenMove = possibleMoves.stream()
+                .filter(m -> m.getEnd().equals(end))
                 .findFirst()
-                .orElseThrow(() -> new InvalidGameException("Invalid move"));
-        if (!game.makeMove(userMove)) {
+                .orElse(null);
+
+        assert chosenMove != null;
+        if (!game.makeMove(chosenMove)){
             throw new InvalidGameException("Invalid move");
         }
         game.updateGameState();
-        GameStorage.getInstance().setGame(game);
         return game;
     }
 
@@ -218,8 +203,7 @@ public class GameService {
                 move.getStart().getRow(),
                 move.getStart().getCol(),
                 move.getEnd().getRow(),
-                move.getEnd().getCol(),
-                move.moveTypetoString(),game.getPlayer1().toString()
+                move.getEnd().getCol()
         )).collect(Collectors.toList());
     }
 
@@ -237,49 +221,22 @@ public class GameService {
         Piece movePiece = game.getBoard().getSquare(s_row,s_col).getPiece();
         Piece capturedPiece = game.getBoard().getSquare(e_row,e_col).getPiece();
 
-        if (moveDTO.getSpecialMove().equals( "CASTLE")){
-            game.getBoard().doCastle(movePiece,capturedPiece);
-        } else if (moveDTO.getSpecialMove().equals("ENPASSANT")) {
-            game.getBoard().doEnPassant(movePiece,capturedPiece);
-        }else if (moveDTO.getSpecialMove().equals("PROMOTION")) {
-            promotePawn(game, pieceDTO, moveDTO);
-        }else{
-            if (capturedPiece != null){
-                game.getBoard().handleCapturedPiece(game.getGameState(),capturedPiece);
-            }
-            game.getBoard().movePiece(start,end);
-
-        }
-        game.switchPlayers();
+//        if (moveDTO.getSpecialMove().equals( "CASTLE")){
+//            game.getBoard().doCastle(movePiece,capturedPiece);
+//        } else if (moveDTO.getSpecialMove().equals("ENPASSANT")) {
+//            game.getBoard().doEnPassant(movePiece,capturedPiece);
+//        }else if (moveDTO.getSpecialMove().equals("PROMOTION")) {
+//            promotePawn(game, pieceDTO, moveDTO);
+//        }else{
+//            if (capturedPiece != null){
+//                game.getBoard().handleCapturedPiece(game.getGameState(),capturedPiece);
+//            }
+//            game.getBoard().movePiece(start,end);
+//
+//        }
+//        game.switchPlayers();
         return makeBoardDTO(game.getBoard());
     }
-
-
-
-    /*
-        private void executeMove(Move move) {
-
-        // Handle special moves -> castling, en passant, and promotion
-        if (move.isCastle()) {
-            board.doCastle(move.getMovedPiece(), move.getCapturedPiece());
-        } else if (move.isEnPassantCapture()) {
-            board.doEnPassant(move.getMovedPiece(), move.getCapturedPiece());
-        } else if (move.isPromotion()) {
-            // Handle pawn promotion
-            board.promotePawn(move);
-        } else {
-            // Standard move
-            Piece capturedPiece = move.getCapturedPiece();
-            if (capturedPiece != null) {
-                board.handleCapturedPiece(gameState, capturedPiece);
-
-            }
-            board.movePiece(move.getStart(), move.getEnd());
-        }
-        switchPlayers();
-
-    }
-     */
 
 
         public void promotePawn(Game game, PieceDTO pieceDTO, MoveDTO moveDTO) {

@@ -28,9 +28,9 @@ public class GameController {
 
 
     @PostMapping("/start")
-    public ResponseEntity<GameDTO> start(Player player){
+    public ResponseEntity<GameDTO> start(@RequestBody PlayerDTO playerDTO){
         log.info("start game request: {}");
-        return ResponseEntity.ok(gameService.createGameDTO(player));
+        return ResponseEntity.ok(gameService.createGameDTO(gameService.createGame(playerDTO)));
     }
 
     @PostMapping("/connect")
@@ -49,15 +49,7 @@ public class GameController {
     public ResponseEntity<GameDTO> gamePlay(@PathVariable String gameId, @RequestBody MoveDTO request) throws NotFoundException, InvalidGameException{
         log.info("gameplay: {}", request);
         Game game = gameService.gamePlay(gameId,request);
-        PlayerDTO player1 = gameService.toplayerDTO(game.getPlayer1());
-        GameDTO gameDTO = new GameDTO(
-                gameId,
-                gameService.makeBoardDTO(game.getBoard()),
-                player1,
-                player1, // does do anything that the moment because a new player is created inside createGame
-                game.getGameHistory(),
-                game.getStatus());
-
+        GameDTO gameDTO = gameService.createGameDTO(game);
         simpMessagingTemplate.convertAndSend("/topic/game-progress" + game.getGameId(), game); // use websocket to notify the other player of our move
         return ResponseEntity.ok(gameDTO);
     }
