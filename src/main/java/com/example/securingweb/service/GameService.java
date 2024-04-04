@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class GameService {
-    private Game createGame(Player player1){
+    public Game createGame(Player player1){
         Game game = new Game();
         String gameId = UUID.randomUUID().toString();
         game.setGameId(gameId);

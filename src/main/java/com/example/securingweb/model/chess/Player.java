@@ -23,6 +23,7 @@ public class Player implements GameObserver {
         this.occupiedSquares = new ArrayList<>();
     }
 
+
     public void setupOccupiedSquares(boolean isWhite, Board board) {
 
         int start = isWhite ? 6 : 0;

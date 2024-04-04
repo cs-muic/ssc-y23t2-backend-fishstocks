@@ -14,6 +14,7 @@ import java.util.List;
 @Setter
 @Getter
 public class Game {
+    @Getter
     private String gameId;
     private List<GameObserver> observers = new ArrayList<>();
     private GameState gameState;
@@ -94,5 +95,4 @@ public class Game {
             }
         }
     }
-
 }
