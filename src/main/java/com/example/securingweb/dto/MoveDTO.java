@@ -8,8 +8,11 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class MoveDTO {
-    private int row;
-    private int col;
-    private boolean isSpecialMove;
+    private int startRow;
+    private int startCol;
+    private int endRow;
+    private int endCol;
+//    private boolean isSpecialMove;
+    private String SpecialMove;
 
 }

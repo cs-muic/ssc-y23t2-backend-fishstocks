@@ -1,7 +1,5 @@
 package com.example.securingweb.model.chess;
 
-import lombok.Setter;
-
 import java.util.ArrayList;
 import java.util.List;
 

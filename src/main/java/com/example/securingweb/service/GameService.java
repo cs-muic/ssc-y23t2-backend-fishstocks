@@ -5,11 +5,9 @@ import com.example.securingweb.exception.InvalidGameException;
 import com.example.securingweb.exception.InvalidParamException;
 import com.example.securingweb.exception.NotFoundException;
 import com.example.securingweb.model.chess.*;
-
 import com.example.securingweb.storage.GameStorage;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-
 
 import java.util.List;
 import java.util.UUID;
@@ -22,9 +20,11 @@ public class GameService {
         Game game = new Game();
         String gameId = UUID.randomUUID().toString();
         game.setGameId(gameId);
+        GameStorage.getInstance().setGame(game);
+
+
 
         GameHistory gameHistory = new GameHistory();
-        gameHistory.setGameID(gameId);
         game.setPlayer1(player1);
         game.setGameState(new GameState(player1));
 
@@ -59,7 +59,7 @@ public class GameService {
     }
 
 
-    private BoardDTO makeBoardDTO(Board board) {
+    public BoardDTO makeBoardDTO(Board board) {
         BoardDTO boardDTO = new BoardDTO();
         boardDTO.setWhiteKing(new KingDTO(true, board.getKingSquare(true).getRow(), board.getKingSquare(true).getCol()));
         boardDTO.setBlackKing(new KingDTO(false, board.getKingSquare(false).getRow(), board.getKingSquare(false).getCol()));
@@ -136,19 +136,19 @@ public class GameService {
         return game;
     }
 
-    public Game gamePlay(GamePlay gamePlay) throws NotFoundException, InvalidGameException {
-        if (!GameStorage.getInstance().getGames().containsKey(gamePlay.getGameId())) {
+    public Game gamePlay(String gameId, MoveDTO moveDTO) throws NotFoundException, InvalidGameException {
+        if (!GameStorage.getInstance().getGames().containsKey(gameId)) {
             throw new NotFoundException("Game not found");
         }
 
-        Game game = GameStorage.getInstance().getGames().get(gamePlay.getGameId());
+        Game game = GameStorage.getInstance().getGames().get(gameId);
         if (game.getStatus().equals(GameStatus.FINISHED)) {
             throw new InvalidGameException("Game is already finished");
         }
 
         Board board = game.getBoard();
-        Square start = board.getSquare(gamePlay.getStart().getRow(), gamePlay.getStart().getCol());
-        Square end = board.getSquare(gamePlay.getEnd().getRow(), gamePlay.getEnd().getCol());
+        Square start = board.getSquare(moveDTO.getStartRow(), moveDTO.getStartCol());
+        Square end = board.getSquare(moveDTO.getEndRow(), moveDTO.getEndCol());
 
         Piece movedPiece = start.getPiece();
         List<Move> possibleMoves = game.getRules().getPossibleMoves(movedPiece, game.getBoard());
@@ -157,11 +157,10 @@ public class GameService {
                 .filter(move -> move.getStart().equals(start) && move.getEnd().equals(end))
                 .findFirst()
                 .orElseThrow(() -> new InvalidGameException("Invalid move"));
-
         if (!game.makeMove(userMove)) {
             throw new InvalidGameException("Invalid move");
         }
-
+        game.updateGameState();
         GameStorage.getInstance().setGame(game);
         return game;
     }
@@ -177,11 +176,108 @@ public class GameService {
         List<Move> validMoves = game.getRules().getPossibleMoves(piece, game.getBoard());
 
         return validMoves.stream().map(move -> new MoveDTO(
+                move.getStart().getRow(),
+                move.getStart().getCol(),
                 move.getEnd().getRow(),
                 move.getEnd().getCol(),
-                move.isCastle() || move.isEnPassantCapture() || move.isPromotion()
+                move.moveTypetoString()
         )).collect(Collectors.toList());
     }
+
+    public BoardDTO makeMove(String gameId, PieceDTO pieceDTO, MoveDTO moveDTO) throws NotFoundException {
+        Game game = GameStorage.getInstance().getGames().get(gameId);
+        if (game == null) {
+            throw new NotFoundException("Game not found");
+        }
+        int s_row = moveDTO.getStartRow();
+        int s_col = moveDTO.getStartCol();
+        int e_row = moveDTO.getEndRow();
+        int e_col = moveDTO.getEndCol();
+        Square start = game.getBoard().getSquare(s_row,s_col);
+        Square end = game.getBoard().getSquare(e_row,e_col);
+        Piece movePiece = game.getBoard().getSquare(s_row,s_col).getPiece();
+        Piece capturedPiece = game.getBoard().getSquare(e_row,e_col).getPiece();
+
+        if (moveDTO.getSpecialMove().equals( "CASTLE")){
+            game.getBoard().doCastle(movePiece,capturedPiece);
+        } else if (moveDTO.getSpecialMove().equals("ENPASSANT")) {
+            game.getBoard().doEnPassant(movePiece,capturedPiece);
+        }else if (moveDTO.getSpecialMove().equals("PROMOTION")) {
+            promotePawn(game, pieceDTO, moveDTO);
+        }else{
+            if (capturedPiece != null){
+                game.getBoard().handleCapturedPiece(game.getGameState(),capturedPiece);
+            }
+            game.getBoard().movePiece(start,end);
+
+        }
+        game.switchPlayers();
+        return makeBoardDTO(game.getBoard());
+    }
+
+
+
+    /*
+        private void executeMove(Move move) {
+
+        // Handle special moves -> castling, en passant, and promotion
+        if (move.isCastle()) {
+            board.doCastle(move.getMovedPiece(), move.getCapturedPiece());
+        } else if (move.isEnPassantCapture()) {
+            board.doEnPassant(move.getMovedPiece(), move.getCapturedPiece());
+        } else if (move.isPromotion()) {
+            // Handle pawn promotion
+            board.promotePawn(move);
+        } else {
+            // Standard move
+            Piece capturedPiece = move.getCapturedPiece();
+            if (capturedPiece != null) {
+                board.handleCapturedPiece(gameState, capturedPiece);
+
+            }
+            board.movePiece(move.getStart(), move.getEnd());
+        }
+        switchPlayers();
+
+    }
+     */
+
+
+        public void promotePawn(Game game, PieceDTO pieceDTO, MoveDTO moveDTO) {
+        // Get the location where the pawn should be promoted
+
+        int s_row = moveDTO.getStartRow();
+        int s_col = moveDTO.getStartCol();
+        int e_row = moveDTO.getEndRow();
+        int e_col = moveDTO.getEndCol();
+        Square start = game.getBoard().getSquare(s_row,s_col);
+        Square end = game.getBoard().getSquare(e_row,e_col);
+        Piece movePiece = game.getBoard().getSquare(s_row,s_col).getPiece();
+        Piece capturedPiece = game.getBoard().getSquare(e_row,e_col).getPiece();
+        Square location = end;
+
+        // Store the pawn's original location
+        Square originalLocation = game.getBoard().getSquare(movePiece.getRow(), movePiece.getCol());
+
+
+        if(capturedPiece != null){
+            // need this for when the pawn captures AND promotes at the same time
+            game.getBoard().getSquare(capturedPiece.getRow(), capturedPiece.getCol()).emptySquare(); // empty the square with wtv piece we just captured
+        }
+
+        // Empty the square where the pawn was
+        originalLocation.emptySquare();
+
+        // Empty the square where the pawn should be promoted
+        location.emptySquare();
+
+        // Create promoted piece
+        Piece promotedPiece = PieceFactory.createPromotedPiece(game.getBoard(), movePiece.isWhite(), location.getRow(), location.getCol());
+
+        // Update the square
+        location.setPiece(promotedPiece);
+    }
+
 
 
 }

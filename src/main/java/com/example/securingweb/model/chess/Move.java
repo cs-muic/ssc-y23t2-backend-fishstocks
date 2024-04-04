@@ -50,5 +50,14 @@ public class Move {
 
     public boolean isPromotion() {return moveType == MoveType.PROMOTION;}
 
+    public String moveTypetoString(){
+        return switch (moveType){
+            case CASTLE -> "CASTLE";
+            case EN_PASSANT -> "EN_PASSANT";
+            case REGULAR -> "REGULAR";
+            case PROMOTION -> "PROMOTION";
+        };
+    }
+
 
 }
