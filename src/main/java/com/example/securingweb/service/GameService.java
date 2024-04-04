@@ -5,6 +5,7 @@ import com.example.securingweb.exception.InvalidGameException;
 import com.example.securingweb.exception.InvalidParamException;
 import com.example.securingweb.exception.NotFoundException;
 import com.example.securingweb.model.chess.*;
+import com.example.securingweb.repo.UserRepository;
 import com.example.securingweb.storage.GameStorage;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,8 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class GameService {
+
+    private UserRepository userRepository;
     private Game createGame(Player player1){
         Game game = new Game();
         String gameId = UUID.randomUUID().toString();
@@ -26,6 +29,7 @@ public class GameService {
 
         GameHistory gameHistory = new GameHistory();
         game.setPlayer1(player1);
+        game.setPlayer2(new Player("kk2")); //major fix
         game.setGameState(new GameState(player1));
 
 
@@ -45,18 +49,27 @@ public class GameService {
         return game;
     }
 
+    public PlayerDTO toplayerDTO(Player player){
+        List<PieceDTO> l = player.getCapturedPieces().stream().map(
+                (piece) -> new PieceDTO(piece.getType().toString(), piece.getRow(), piece.getCol())).toList();
+        return new PlayerDTO(player.getLogin(), l);
+    }
+
     public GameDTO createGameDTO(Player player1){
+
         Game game = createGame(player1);
 
         GameDTO gameDTO = new GameDTO();
+        PlayerDTO playerDTO = toplayerDTO(player1);
 
         gameDTO.setGameId(game.getGameId());
         gameDTO.setGameHistory(game.getGameHistory());
         gameDTO.setBoard(makeBoardDTO(game.getBoard()));
-        gameDTO.setPlayer1(new PlayerDTO(player1.getLogin(), player1.getCapturedPieces()));
+        gameDTO.setPlayer1(playerDTO);
 
         return gameDTO;
     }
+
 
 
     public BoardDTO makeBoardDTO(Board board) {
@@ -137,11 +150,14 @@ public class GameService {
     }
 
     public Game gamePlay(String gameId, MoveDTO moveDTO) throws NotFoundException, InvalidGameException {
+        Game game;
         if (!GameStorage.getInstance().getGames().containsKey(gameId)) {
-            throw new NotFoundException("Game not found");
+//            game = createGame(new Player(playerDTO.getLogin()));
+            game = createGame(new Player(moveDTO.getName()));
+//            throw new NotFoundException("Game not found");
+        }else{
+            game = GameStorage.getInstance().getGames().get(gameId);
         }
-
-        Game game = GameStorage.getInstance().getGames().get(gameId);
         if (game.getStatus().equals(GameStatus.FINISHED)) {
             throw new InvalidGameException("Game is already finished");
         }
@@ -180,7 +196,7 @@ public class GameService {
                 move.getStart().getCol(),
                 move.getEnd().getRow(),
                 move.getEnd().getCol(),
-                move.moveTypetoString()
+                move.moveTypetoString(),game.getPlayer1().toString()
         )).collect(Collectors.toList());
     }
 

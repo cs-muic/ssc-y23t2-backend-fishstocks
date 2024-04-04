@@ -19,9 +19,16 @@ public class Game {
     private GameState gameState;
     private Board board;
     private Player player1, player2;
+
     private GameHistory gameHistory;
     private ChessRules rules;
     private GameStatus status;
+
+    public void setPlayer2(Player player2) {
+        if (player2 != null){
+            this.player2 = player2;
+        }
+    }
 
     public boolean makeMove(Move move) {
         Square start = move.getStart();

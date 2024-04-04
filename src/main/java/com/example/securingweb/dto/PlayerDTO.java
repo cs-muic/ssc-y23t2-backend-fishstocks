@@ -1,6 +1,5 @@
 package com.example.securingweb.dto;
 
-import com.example.securingweb.model.chess.Piece;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,6 +10,6 @@ import java.util.List;
 @AllArgsConstructor
 public class PlayerDTO {
     String login;
-    List<Piece> capturedPieces;
+    List<PieceDTO> capturedPieces;
 
 }

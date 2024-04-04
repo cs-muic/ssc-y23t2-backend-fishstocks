@@ -49,11 +49,12 @@ public class GameController {
     public ResponseEntity<GameDTO> gamePlay(@PathVariable String gameId, @RequestBody MoveDTO request) throws NotFoundException, InvalidGameException{
         log.info("gameplay: {}", request);
         Game game = gameService.gamePlay(gameId,request);
+        PlayerDTO player1 = gameService.toplayerDTO(game.getPlayer1());
         GameDTO gameDTO = new GameDTO(
                 gameId,
                 gameService.makeBoardDTO(game.getBoard()),
-                new PlayerDTO(game.getPlayer1().getLogin(), game.getPlayer1().getCapturedPieces()),
-                new PlayerDTO(game.getPlayer1().getLogin(), game.getPlayer1().getCapturedPieces()),
+                player1,
+                player1, // does do anything that the moment because a new player is created inside createGame
                 game.getGameHistory(),
                 game.getStatus());
 

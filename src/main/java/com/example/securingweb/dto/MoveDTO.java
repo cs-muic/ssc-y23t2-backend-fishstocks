@@ -15,4 +15,6 @@ public class MoveDTO {
 //    private boolean isSpecialMove;
     private String SpecialMove;
 
+    private String name;
+
 }
