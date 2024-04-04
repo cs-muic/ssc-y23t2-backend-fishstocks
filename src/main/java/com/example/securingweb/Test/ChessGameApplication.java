@@ -2,7 +2,9 @@ package com.example.securingweb.Test;
 
 import com.example.securingweb.dto.MoveDTO;
 import com.example.securingweb.dto.PieceDTO;
+import com.example.securingweb.dto.PlayerDTO;
 import com.example.securingweb.model.chess.Game;
+import com.example.securingweb.model.chess.MoveType;
 import com.example.securingweb.model.chess.Player;
 import com.example.securingweb.service.GameService;
 import org.springframework.boot.CommandLineRunner;
@@ -26,9 +28,9 @@ public class ChessGameApplication {
             // Initialize a new game, potentially with default players
 
             Player player = new Player("root");
-            Game game = gameService.createGame(player);
+            Game game = gameService.createGame(new PlayerDTO(player.getLogin(), player.getCapturedPieces()));
             PieceDTO piece = new PieceDTO("K", 0, 1);
-            MoveDTO move = new MoveDTO(0, 1, 2, 2, "no");
+            MoveDTO move = new MoveDTO(0, 1, 2, 2);
 
             // Example moves
             gameService.makeMove(game.getGameId(), piece, move);

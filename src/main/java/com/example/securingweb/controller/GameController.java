@@ -28,9 +28,9 @@ public class GameController {
 
 
     @PostMapping("/start")
-    public ResponseEntity<GameDTO> start(Player player){
+    public ResponseEntity<GameDTO> start(@RequestBody PlayerDTO playerDTO){
         log.info("start game request: {}");
-        return ResponseEntity.ok(gameService.createGameDTO(player));
+        return ResponseEntity.ok(gameService.createGameDTO(gameService.createGame(playerDTO)));
     }
 
     @PostMapping("/connect")
