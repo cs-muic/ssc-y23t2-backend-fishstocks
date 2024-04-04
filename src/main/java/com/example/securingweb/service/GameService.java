@@ -181,7 +181,6 @@ public class GameService {
             game = GameStorage.getInstance().getGames().get(gameId);
         }
 
-        Game game = GameStorage.getInstance().getGames().get(gameId);
         if (game.getStatus().equals(GameStatus.FINISHED)) {
             throw new InvalidGameException("Game is already finished");
         }
