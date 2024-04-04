@@ -35,6 +35,7 @@ public class GameService {
         game.setRules(new ChessRules(game.getBoard(), game.getGameHistory()));
         game.setStatus(GameStatus.NEW);
         game.setCurrentPlayerIsWhite(true);
+        game.setPlayer2(new Player(false, new PlayerDTO("p2login", new ArrayList<>()), gameId));
         return game;
     }
 
@@ -48,10 +49,10 @@ public class GameService {
                 return GameStatus.NEW;
             }
             else if(!gameState.isCheckmate() || gameState.isStalemate()){
-                return GameStatus.IN_PROGRESS;
+                return GameStatus.FINISHED;
             }
             else{
-                return GameStatus.FINISHED;
+                return GameStatus.IN_PROGRESS;
             }
 
         }
@@ -77,6 +78,7 @@ public class GameService {
             gameDTO.setPlayer2(new PlayerDTO(game.getPlayer2().getLogin(), game.getPlayer2().getCapturedPieces()));
         }
         gameDTO.setStatus(game.getStatus());
+
         return gameDTO;
     }
 
