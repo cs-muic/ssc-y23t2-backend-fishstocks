@@ -6,12 +6,24 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+
 @Getter
+@Service
 public class GameHistory {
     @Setter
     private List<Move> gameHistory;
     private List<Move> playerWhiteHistory;
     private List<Move> playerBlackHistory;
+
+    private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    public void GameService(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     public GameHistory() {
         gameHistory = new ArrayList<>();
@@ -23,8 +35,10 @@ public class GameHistory {
         return playerIsWhite ? playerWhiteHistory : playerBlackHistory;
     }
 
-    public void recordMove(Move move) {
+    public void recordMove(Move move, String gameId) {
+        String sql = "INSERT INTO Moves (GameID, GameMove) VALUES (?, ?)";
         gameHistory.add(move);
+        jdbcTemplate.update(sql, gameId, move.getNotation());
         getPlayerHistory(move.getMovedPiece().isWhite()).add(move);
     }
 

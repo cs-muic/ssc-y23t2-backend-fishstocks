@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -49,6 +50,28 @@ public class GameService {
         return game;
     }
 
+    public GameStatus findState(String gameId){
+        Map<String, Game> gamesSet = GameStorage.getInstance().getGames();
+
+        if (gamesSet.containsKey(gameId)){
+            Game game = gamesSet.get(gameId);
+            GameState gameState = game.getGameState();
+            if(game.getPlayer2() == null){
+                return GameStatus.NEW;
+            }
+            else if(!gameState.isCheckmate() || gameState.isStalemate()){
+                return GameStatus.IN_PROGRESS;
+            }
+            else{
+                return GameStatus.FINISHED;
+            }
+
+        }
+        else{
+            throw new RuntimeException("This gameId does not exist");
+        }
+    }
+
     public PlayerDTO toplayerDTO(Player player){
         List<PieceDTO> l = player.getCapturedPieces().stream().map(
                 (piece) -> new PieceDTO(piece.getType().toString(), piece.getRow(), piece.getCol())).toList();
@@ -69,7 +92,6 @@ public class GameService {
 
         return gameDTO;
     }
-
 
 
     public BoardDTO makeBoardDTO(Board board) {
@@ -158,6 +180,8 @@ public class GameService {
         }else{
             game = GameStorage.getInstance().getGames().get(gameId);
         }
+
+        Game game = GameStorage.getInstance().getGames().get(gameId);
         if (game.getStatus().equals(GameStatus.FINISHED)) {
             throw new InvalidGameException("Game is already finished");
         }

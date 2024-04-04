@@ -34,6 +34,7 @@ create table Moves
 (
     MoveID int auto_increment,
     GameID int not null,
+    GameMove varchar(10) not null,
     constraint Moves_pk
         primary key (MoveID),
     constraint Moves_pk_2

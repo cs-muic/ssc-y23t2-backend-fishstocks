@@ -1,6 +1,7 @@
 package com.example.securingweb.model.chess;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ public class Player implements GameObserver {
         this.capturedPieces = new ArrayList<>();
         this.occupiedSquares = new ArrayList<>();
     }
+
 
     public void setupOccupiedSquares(boolean isWhite, Board board) {
 

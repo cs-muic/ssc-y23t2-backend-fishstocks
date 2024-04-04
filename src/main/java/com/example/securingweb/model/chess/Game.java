@@ -1,8 +1,10 @@
 package com.example.securingweb.model.chess;
 
+import com.example.securingweb.dto.MoveDTO;
 import com.example.securingweb.exception.InvalidMoveException;
 import lombok.Getter;
 import lombok.Setter;
+import org.testng.reporters.jq.Main;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +16,7 @@ import java.util.List;
 @Setter
 @Getter
 public class Game {
+    @Getter
     private String gameId;
     private List<GameObserver> observers = new ArrayList<>();
     private GameState gameState;
@@ -50,7 +53,7 @@ public class Game {
 
         executeMove(chosenMove);
         gameState.getCurrentPlayer().updateSquares(start, end);
-        gameHistory.recordMove(chosenMove);
+        gameHistory.recordMove(chosenMove, gameId);
 
         return true;
     }
@@ -101,5 +104,4 @@ public class Game {
             }
         }
     }
-
 }
