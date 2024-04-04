@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-@AllArgsConstructor
 public class Player implements GameObserver {
     private String login;
     private boolean isWhite; // Player's color

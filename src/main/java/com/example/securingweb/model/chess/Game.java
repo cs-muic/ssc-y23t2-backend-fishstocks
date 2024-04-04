@@ -1,8 +1,10 @@
 package com.example.securingweb.model.chess;
 
+import com.example.securingweb.dto.MoveDTO;
 import com.example.securingweb.exception.InvalidMoveException;
 import lombok.Getter;
 import lombok.Setter;
+import org.testng.reporters.jq.Main;
 
 import java.util.ArrayList;
 import java.util.List;

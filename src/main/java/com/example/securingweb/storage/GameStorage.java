@@ -1,10 +1,11 @@
 package com.example.securingweb.storage;
 import com.example.securingweb.model.chess.Game;
+import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.Map;
 
-
+@Getter
 public class GameStorage {
     private static Map<String, Game> games;
     private static GameStorage instance;

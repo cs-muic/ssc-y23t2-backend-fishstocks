@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -43,6 +44,28 @@ public class GameService {
         GameStorage.getInstance().setGame(game);
 
         return game;
+    }
+
+    public GameStatus findState(String gameId){
+        Map<String, Game> gamesSet = GameStorage.getInstance().getGames();
+
+        if (gamesSet.containsKey(gameId)){
+            Game game = gamesSet.get(gameId);
+            GameState gameState = game.getGameState();
+            if(game.getPlayer2() == null){
+                return GameStatus.NEW;
+            }
+            else if(!gameState.isCheckmate() || gameState.isStalemate()){
+                return GameStatus.IN_PROGRESS;
+            }
+            else{
+                return GameStatus.FINISHED;
+            }
+
+        }
+        else{
+            throw new RuntimeException("This gameId does not exist");
+        }
     }
 
     public GameDTO createGameDTO(Player player1){
@@ -243,7 +266,7 @@ public class GameService {
      */
 
 
-        public void promotePawn(Game game, PieceDTO pieceDTO, MoveDTO moveDTO) {
+        public static void promotePawn(Game game, PieceDTO pieceDTO, MoveDTO moveDTO) {
         // Get the location where the pawn should be promoted
 
         int s_row = moveDTO.getStartRow();
@@ -276,10 +299,6 @@ public class GameService {
 
         // Update the square
         location.setPiece(promotedPiece);
-    }
-
-    public static void main(String[] args) {
-
     }
 
 
