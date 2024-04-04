@@ -22,12 +22,15 @@ public class Game {
     private GameHistory gameHistory;
     private ChessRules rules;
     private GameStatus status;
+    private boolean currentPlayerIsWhite;
 
     public boolean makeMove(Move move) {
         Square start = move.getStart();
         Square end = move.getEnd();
         Piece startPiece = start.getPiece();
-        if (startPiece == null || !startPiece.isWhite() == gameState.getCurrentPlayer().isWhite()) {
+        if (startPiece == null || !(startPiece.isWhite() == currentPlayerIsWhite)) {
+            assert startPiece != null;
+            System.out.println("Wrong player currentplayer: "+ player1.isWhite()+ startPiece.isWhite);
             return false;
         }
 
@@ -37,12 +40,13 @@ public class Game {
                 .findFirst()
                 .orElse(null);
 
-        if (chosenMove == null || !rules.isMoveLegal(chosenMove, gameState.getCurrentPlayer())) {
+        if (chosenMove == null || !rules.isMoveLegal(chosenMove, getCurrentPlayer())) {
             return false;
         }
 
         executeMove(chosenMove);
-        gameState.getCurrentPlayer().updateSquares(start, end);
+        System.out.println("In game class: " + getCurrentPlayer());
+        getCurrentPlayer().updateSquares(start, end);
         gameHistory.recordMove(chosenMove);
 
         return true;
@@ -67,7 +71,7 @@ public class Game {
             // Standard move
             Piece capturedPiece = move.getCapturedPiece();
             if (capturedPiece != null) {
-                board.handleCapturedPiece(gameState, capturedPiece);
+                getCurrentPlayer().addCaptured(capturedPiece);
 
             }
             board.movePiece(move.getStart(), move.getEnd());
@@ -76,23 +80,26 @@ public class Game {
 
     }
 
-    public void switchPlayers() {
-        gameState.setCurrentPlayer((gameState.getCurrentPlayer() == player1) ? player2 : player1);
+    private void switchPlayers() {
+        currentPlayerIsWhite = (!currentPlayerIsWhite);
     }
 
     public void updateGameState() {
-        if (rules.scanCheck(board.getKingSquare(gameState.getCurrentPlayer().isWhite()),
-                gameState.getCurrentPlayer().isWhite())) {
+        if (rules.scanCheck(board.getKingSquare(currentPlayerIsWhite),
+                currentPlayerIsWhite)) {
             gameState.setCheck(true);
-            if (!gameState.getCurrentPlayer().hasLegalMoves(board, rules)) {
+            if (!((currentPlayerIsWhite?player1:player2).hasLegalMoves(board, rules))) {
                 gameState.setCheckmate(true);
             }
         } else {
             gameState.setCheck(false);
-            if (!gameState.getCurrentPlayer().hasLegalMoves(board, rules)) {
+            if (!((currentPlayerIsWhite?player1:player2).hasLegalMoves(board, rules))) {
                 gameState.setStalemate(true);
             }
         }
+    }
+    public Player getCurrentPlayer(){
+        return (currentPlayerIsWhite? player1: player2);
     }
 
 }

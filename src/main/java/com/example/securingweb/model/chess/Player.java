@@ -1,27 +1,41 @@
 package com.example.securingweb.model.chess;
 
+import com.example.securingweb.dto.PlayerDTO;
+import com.example.securingweb.storage.GameStorage;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class Player implements GameObserver {
+@Getter
+@Setter
+public class Player {
     private String login;
     private boolean isWhite; // Player's color
     @JsonManagedReference
     private List<Piece> capturedPieces; // Pieces this player has currently captured
     @JsonManagedReference
     private List<Square> occupiedSquares;
+    public Player(boolean isWhite, PlayerDTO playerDTO, String gameID){
+        this.login = playerDTO.getLogin();
+        capturedPieces = playerDTO.getCapturedPieces();
+        this.isWhite = isWhite;
+        this.occupiedSquares = new ArrayList<>();
+        setupOccupiedSquares(GameStorage.getInstance().getGames().get(gameID).getBoard());
+    }
 
     public Player(String login) {
         this.login = login;
         this.capturedPieces = new ArrayList<>();
         this.occupiedSquares = new ArrayList<>();
+
     }
 
-    public void setupOccupiedSquares(boolean isWhite, Board board) {
+    public void setupOccupiedSquares(Board board) {
 
         int start = isWhite ? 6 : 0;
         int end = isWhite ? 7 : 1;
@@ -67,24 +81,6 @@ public class Player implements GameObserver {
         return false;
     }
 
-    @Override
-    public void update(GameEvent event) {
-        if (event instanceof GameStateChangeEvent) {
-            GameStateChangeEvent gameStateChangeEvent = (GameStateChangeEvent) event;
-            GameState state = gameStateChangeEvent.getState();
 
-            // Check if it's this player's turn
-            if (state.getCurrentPlayer().isWhite == this.isWhite) {
-                System.out.println("It's your turn.");
-            }
 
-            // React to check or checkmate status
-            if (state.isCheck()) {
-                System.out.println("You are in check.");
-            }
-            if (state.isCheckmate()) {
-                System.out.println("Checkmate.");
-            }
-        }
-    }
 }

@@ -225,8 +225,4 @@ public class Board {
         location.setPiece(promotedPiece);
     }
 
-
-    public void handleCapturedPiece(GameState gameState, Piece capturedPiece) {
-        gameState.getCurrentPlayer().addCaptured(capturedPiece);
-    }
 }
