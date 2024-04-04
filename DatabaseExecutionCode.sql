@@ -1,9 +1,13 @@
 --Everything here is done in Mariadb, just remember to give the permissions
 --like
+#Please run line by line
 CREATE DATABASE Chess;
 
 GRANT ALL PRIVILEGES ON Chess.* TO 'root'@'%';
 FLUSH PRIVILEGES;
+
+#STOP HERE, before you run the follow commands, look above, there is something called schema
+#now we are going to change it to the database Chess which we just created and then run the code
 
 create table User
 (
@@ -40,6 +44,9 @@ create table Moves
     constraint Moves_pk_2
         unique (MoveID)
 );
+
+# YOU are not done yet, then go to application.yml and click on the database icon next to the datasource
+# And then go to game record, connect to chess database
 
 --Used to find all ID
 SELECT *

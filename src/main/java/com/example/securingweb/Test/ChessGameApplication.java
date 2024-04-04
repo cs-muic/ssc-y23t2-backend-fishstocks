@@ -25,15 +25,15 @@ public class ChessGameApplication {
         return (args) -> {
             // Initialize a new game, potentially with default players
 
-            Player player = new Player("root");
-            Game game = gameService.createGame(player);
-            PieceDTO piece = new PieceDTO("K", 0, 1);
-            MoveDTO move = new MoveDTO(0, 1, 2, 2, "no");
-
-            // Example moves
-            gameService.makeMove(game.getGameId(), piece, move);
-
-            System.out.println("Final Game State: ");
+//            Player player = new Player("root");
+//            //Game game = gameService.createGame(player);
+//            PieceDTO piece = new PieceDTO("K", 0, 1);
+//            // MoveDTO move = new MoveDTO(0, 1, 2, 2, "no");
+//
+//            // Example moves
+//            gameService.makeMove(game.getGameId(), piece, move);
+//
+//            System.out.println("Final Game State: ");
         };
     }
 }

@@ -1,2 +1,10 @@
 docker pull mysql:latest
 docker run -p 3307:3306 --name mysqlcontainer -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=user -d mysql
+
+# For including moves
+docker run -p 127.0.0.1:13306:3306 --name mariadb --env MARIADB_ROOT_PASSWORD=password -d --restart=always mariadb:10
+
+# Then connect to the database on Intellij by clicking the + button
+# The account and password is: root password
+# After this you will be shown a console
+# Then execute the commands from DatabaseExecutionCode.sql from the start to Moves
