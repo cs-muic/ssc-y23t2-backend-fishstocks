@@ -43,7 +43,7 @@ public class Game {
 
         executeMove(chosenMove);
         gameState.getCurrentPlayer().updateSquares(start, end);
-        gameHistory.recordMove(chosenMove);
+        gameHistory.recordMove(chosenMove, gameId);
 
         return true;
     }

@@ -278,6 +278,9 @@ public class GameService {
         location.setPiece(promotedPiece);
     }
 
+    public static void main(String[] args) {
+
+    }
 
 
 }
