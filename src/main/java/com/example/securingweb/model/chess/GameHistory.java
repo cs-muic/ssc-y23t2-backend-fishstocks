@@ -36,9 +36,9 @@ public class GameHistory {
     }
 
     public void recordMove(Move move, String gameId) {
-//        String sql = "INSERT INTO Moves (GameID, GameMove) VALUES (?, ?)";
+        String sql = "INSERT INTO Moves (GameID, GameMove) VALUES (?, ?)";
         gameHistory.add(move);
-//        jdbcTemplate.update(sql, gameId, move.getNotation());
+        jdbcTemplate.update(sql, gameId, move.getNotation());
         getPlayerHistory(move.getMovedPiece().isWhite()).add(move);
     }
 

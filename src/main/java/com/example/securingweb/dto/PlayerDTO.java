@@ -11,6 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 public class PlayerDTO {
     String login;
+    Boolean isWhite;
     List<Piece> capturedPieces;
 
 }

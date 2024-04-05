@@ -5,6 +5,6 @@ import lombok.Data;
 
 @Data
 public class ConnectRequest {
-    private Player player;
+    private PlayerDTO player;
     private String gameId;
 }

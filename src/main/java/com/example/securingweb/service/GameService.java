@@ -35,7 +35,7 @@ public class GameService {
         game.setRules(new ChessRules(game.getBoard(), game.getGameHistory()));
         game.setStatus(GameStatus.NEW);
         game.setCurrentPlayerIsWhite(true);
-        game.setPlayer2(new Player(false, new PlayerDTO("p2login", new ArrayList<>()), gameId));
+//        game.setPlayer2(new Player(false, new PlayerDTO("p2login", false,  new ArrayList<>()), gameId));
         return game;
     }
 
@@ -73,9 +73,9 @@ public class GameService {
         gameDTO.setGameHistory(game.getGameHistory());
         gameDTO.setBoard(makeBoardDTO(game.getBoard()));
 
-        gameDTO.setPlayer1(new PlayerDTO(game.getPlayer1().getLogin(), game.getPlayer1().getCapturedPieces()));
+        gameDTO.setPlayer1(new PlayerDTO(game.getPlayer1().getLogin(), game.getPlayer1().isWhite(), game.getPlayer1().getCapturedPieces()));
         if(game.getPlayer2()!=null){
-            gameDTO.setPlayer2(new PlayerDTO(game.getPlayer2().getLogin(), game.getPlayer2().getCapturedPieces()));
+            gameDTO.setPlayer2(new PlayerDTO(game.getPlayer2().getLogin(), game.getPlayer2().isWhite(), game.getPlayer2().getCapturedPieces()));
         }
         gameDTO.setStatus(game.getStatus());
 
@@ -135,28 +135,32 @@ public class GameService {
     }
 
 
-    public Game connectToGame(Player player2, String gameId) throws InvalidParamException, InvalidGameException {
-        if(GameStorage.getInstance().getGames().containsKey(gameId)){
-            throw new InvalidParamException("Game with provided id doesnt' exist");
+    public Game connectToGame(PlayerDTO player2DTO, String gameId) throws InvalidParamException, InvalidGameException {
+        if(!GameStorage.getInstance().getGames().containsKey(gameId)){
+            throw new InvalidParamException("Game with provided id doesn't exist");
         }
         Game game = GameStorage.getInstance().getGames().get(gameId);
         if(game.getPlayer2() != null) {
             throw new InvalidGameException("Game is not valid anymore");
         }
-        game.setPlayer2(player2);
+        game.getBoard().printBoard();
+        game.setPlayer2(new Player (false, player2DTO, gameId));
         game.setStatus(GameStatus.IN_PROGRESS);
         GameStorage.getInstance().setGame(game);
         return game;
-
     }
 
-    public Game connectToRandomGame(Player player2) throws NotFoundException{
+    public Game connectToRandomGame(PlayerDTO player2DTO) throws NotFoundException{
         Game game = GameStorage.getInstance().getGames().values().stream()
                 .filter(it->it.getStatus().equals(GameStatus.NEW))
                 .findFirst().orElseThrow(()-> new NotFoundException("Game not found"));
-        game.setPlayer2(player2);
-        game.setStatus(GameStatus.IN_PROGRESS);
-        GameStorage.getInstance().setGame(game);
+        if(game == null){
+            createGame(player2DTO);
+        }else {
+            game.setPlayer2(new Player(false, player2DTO, game.getGameId()));
+            game.setStatus(GameStatus.IN_PROGRESS);
+            GameStorage.getInstance().setGame(game);
+        }
         return game;
     }
 
@@ -186,6 +190,7 @@ public class GameService {
             throw new InvalidGameException("Invalid move");
         }
         game.updateGameState();
+        game.setStatus(findState(gameId));
         return game;
     }
 
