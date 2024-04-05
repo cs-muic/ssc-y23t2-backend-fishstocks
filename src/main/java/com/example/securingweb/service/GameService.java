@@ -10,10 +10,7 @@ import com.example.securingweb.storage.GameStorage;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -150,17 +147,21 @@ public class GameService {
         return game;
     }
 
-    public Game connectToRandomGame(PlayerDTO player2DTO) throws NotFoundException{
-        Game game = GameStorage.getInstance().getGames().values().stream()
-                .filter(it->it.getStatus().equals(GameStatus.NEW))
-                .findFirst().orElseThrow(()-> new NotFoundException("Game not found"));
-        if(game == null){
-            createGame(player2DTO);
-        }else {
+    public Game connectToRandomGame(PlayerDTO player2DTO) {
+        Optional<Game> optionalGame = GameStorage.getInstance().getGames().values().stream()
+                .filter(it -> it.getStatus().equals(GameStatus.NEW))
+                .findFirst();
+
+        Game game;
+        if (optionalGame.isPresent()) {
+            game = optionalGame.get();
             game.setPlayer2(new Player(!game.getPlayer1().isWhite(), player2DTO, game.getGameId()));
             game.setStatus(GameStatus.IN_PROGRESS);
             GameStorage.getInstance().setGame(game);
+        } else {
+            game = createGame(player2DTO);
         }
+
         return game;
     }
 
