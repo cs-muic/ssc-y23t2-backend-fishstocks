@@ -27,7 +27,8 @@ public class GameService {
         game.setGameId(gameId);
         game.setBoard(new Board());
         GameStorage.getInstance().setGame(game);
-        game.setPlayer1(new Player(true, player1DTO, gameId));
+        boolean rngPlayerColor = Math.random() % 2 == 1;
+        game.setPlayer1(new Player(rngPlayerColor, player1DTO, gameId));
 
 //        game.setPlayer2(new Player("kk2")); //major fix
         game.setGameState(new GameState());
@@ -143,7 +144,6 @@ public class GameService {
         if(game.getPlayer2() != null) {
             throw new InvalidGameException("Game is not valid anymore");
         }
-        game.getBoard().printBoard();
         game.setPlayer2(new Player (false, player2DTO, gameId));
         game.setStatus(GameStatus.IN_PROGRESS);
         GameStorage.getInstance().setGame(game);
@@ -157,7 +157,7 @@ public class GameService {
         if(game == null){
             createGame(player2DTO);
         }else {
-            game.setPlayer2(new Player(false, player2DTO, game.getGameId()));
+            game.setPlayer2(new Player(!game.getPlayer1().isWhite(), player2DTO, game.getGameId()));
             game.setStatus(GameStatus.IN_PROGRESS);
             GameStorage.getInstance().setGame(game);
         }
