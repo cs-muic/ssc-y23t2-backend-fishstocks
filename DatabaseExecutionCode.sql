@@ -1,10 +1,4 @@
---Everything here is done in Mariadb, just remember to give the permissions
---like
-CREATE DATABASE Chess;
-
-GRANT ALL PRIVILEGES ON Chess.* TO 'root'@'%';
-FLUSH PRIVILEGES;
-
+USE Chess;
 create table User
 (
     ID       int auto_increment,
@@ -40,19 +34,3 @@ create table Moves
     constraint Moves_pk_2
         unique (MoveID)
 );
-
---Used to find all ID
-SELECT *
-FROM User;
-
---Choose Game from the Player's UserID
-SELECT *
-FROM Game
-WHERE WhiteID = 'UserID' or BlackID = 'UserID';
-
---Select the moves for the player
-SELECT *
-FROM Moves
-WHERE GameID = (SELECT GameID
-               From Game
-               WHERE WhiteID = 'UserID' or BlackID = 'UserID');

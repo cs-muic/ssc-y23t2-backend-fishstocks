@@ -3,7 +3,7 @@ server.port: 8081
 spring:
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://localhost:13306/Chess
+    url: jdbc:mariadb://localhost:3307/Chess
     username: root
     password: password
   jpa:
