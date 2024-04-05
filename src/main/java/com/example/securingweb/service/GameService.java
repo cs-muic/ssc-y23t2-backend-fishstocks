@@ -46,7 +46,7 @@ public class GameService {
             if(game.getPlayer2() == null){
                 return GameStatus.NEW;
             }
-            else if(!gameState.isCheckmate() || gameState.isStalemate()){
+            else if(gameState.isCheckmate() || gameState.isStalemate()){
                 return GameStatus.FINISHED;
             }
             else{
